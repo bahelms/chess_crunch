@@ -10,11 +10,11 @@
     <script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </head>
   <body>
-    <%= render "_user_menu.html", assigns %>
-    <header>
-      <section class="container">
-        <h1 class="text-gray-500 text-5xl text-center font-bold">Chess Crunch</h1>
-      </section>
+    <header class="bg-gray-400">
+      <h4 class="font-bold text-4xl text-center">ChessCrunch</h4>
+      <%# <nav class="flex"> %>
+      <%#   <%= render "_user_menu.html", assigns %1> %>
+      <%# </nav> %>
     </header>
     <%= @inner_content %>
   </body>
