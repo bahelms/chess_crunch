@@ -14,10 +14,10 @@
         <%= password_input f, :password, required: true, placeholder: "Password", class: "p-1 border rounded" %>
       </div>
 
-      <div class="mt-2 text-sm">
-        <%= label f, :remember_me, "Remember me" %>
-        <%= checkbox f, :remember_me %>
-      </div>
+      <%# <div class="mt-2 text-sm"> %>
+      <%#   <%= label f, :remember_me, "Remember me" %1> %>
+      <%#   <%= checkbox f, :remember_me %1> %>
+      <%# </div> %>
 
       <div class="flex justify-center mt-4">
         <div class="py-1 w-3/4 rounded text-center bg-green-500">
@@ -26,7 +26,7 @@
       </div>
     <% end %>
 
-    <p class="mt-4 text-sm">
+    <p class="mt-4 text-sm text-center">
       <%= link "Register", to: Routes.user_registration_path(@conn, :new), class: "underline" %> |
       <%= link "Forgot your password?", to: Routes.user_reset_password_path(@conn, :new), class: "underline" %>
     </p>
