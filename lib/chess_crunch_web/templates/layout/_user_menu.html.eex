@@ -4,11 +4,10 @@
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
     </svg>
   </button>
-  <nav class="absolute top-16 left-0 shadow-md rounded-lg flex-col pt-2 pr-2 bg-gray-100 w-full md:flex md:rounded-none md:shadow-none md:relative md:top-0 md:space-x-6 md:w-auto md:bg-transparent md:flex-row" 
+  <nav class="absolute top-14 left-0 shadow-md rounded-lg flex-col pt-2 pr-2 bg-gray-200 w-full md:flex md:rounded-none md:shadow-none md:relative md:top-0 md:space-x-6 md:w-auto md:bg-transparent md:flex-row"
     :class="{'flex': mobileMenuOpen, 'hidden': !mobileMenuOpen}"
     @click.away="mobileMenuOpen = false">
-    <%# <li><%= @current_user.email %1></li> %>
-    <%= link "Settings", to: Routes.user_settings_path(@conn, :edit) %>
-    <%= link "Log out", to: Routes.user_session_path(@conn, :delete), method: :delete %>
+    <%= link "Settings", to: Routes.user_settings_path(@conn, :edit), class: "pl-3 py-1" %>
+    <%= link "Log out", to: Routes.user_session_path(@conn, :delete), method: :delete, class: "pl-3 py-1" %>
   </nav>
 <% end %>
