@@ -1,5 +1,5 @@
 <div class="flex justify-center mt-20">
-  <div class="rounded bg-gray-300 px-10 py-5">
+  <div class="border-4 border-gray-500 rounded bg-gray-300 px-10 py-5">
     <h1 class="text-center text-xl mb-4">Log In</h1>
 
     <%= form_for @conn, Routes.user_session_path(@conn, :create), [as: :user, class: "flex flex-col m-2"], fn f -> %>
