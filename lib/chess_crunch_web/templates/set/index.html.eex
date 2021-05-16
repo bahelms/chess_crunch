@@ -1,0 +1,14 @@
+<%= if Enum.empty?(@sets) do %>
+  <div class="text-center mt-24">
+    <div>You have not created any sets, yet.</div>
+  </div>
+<% else %>
+  <div class="my-6">
+    <%= link "Create new set", to: Routes.set_path(@conn, :new), class: "btn bg-blue-300 p-2" %>
+  </div>
+  <%= for set <- @sets do %>
+    <div>
+      <%= set.name %>
+    </div>
+  <% end %>
+<% end %>

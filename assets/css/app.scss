@@ -10,6 +10,10 @@
   .alert-danger {
     @apply text-red-700 border-red-200 bg-red-100
   }
+
+  .btn {
+    @apply rounded text-center bg-gray-300 p-3
+  }
 }
 
 /* This file is for your main application css. */

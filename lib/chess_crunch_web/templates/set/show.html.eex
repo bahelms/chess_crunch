@@ -1,0 +1,8 @@
+<ul>
+  <li>
+    <strong>Name:</strong>
+    <%= @set.name %>
+  </li>
+</ul>
+
+<%# <span><%= link "Edit", to: Routes.set_path(@conn, :edit, @set) %1></span> %>
