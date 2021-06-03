@@ -3,16 +3,18 @@
     <div>You have not created any sets.</div>
   </div>
   <div class="my-6 text-center">
-    <%= link "Create new tactics set", to: Routes.set_path(@conn, :new), class: "btn bg-blue-300 p-2" %>
+    <%= link "Create new drills set", to: Routes.set_path(@conn, :new), class: "btn bg-blue-300 p-2" %>
   </div>
 <% else %>
   <div class="my-6 text-center">
-    <%= link "Create new tactics set", to: Routes.set_path(@conn, :new), class: "btn bg-blue-300 p-2" %>
+    <%= link "Create new drills set", to: Routes.set_path(@conn, :new), class: "btn bg-blue-300 p-2" %>
   </div>
 
   <%= for set <- @sets do %>
-    <div class="border m-3">
-      <%= set.name %>
-    </div>
+    <%= link to: Routes.set_path(@conn, :show, set) do %>
+      <div class="border m-3">
+        <%= set.name %>
+      </div>
+    <% end %>
   <% end %>
 <% end %>

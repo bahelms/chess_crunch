@@ -1,8 +1,17 @@
-<ul>
-  <li>
-    <strong>Name:</strong>
+<section class="border-b">
+  <h1 class="my-3 text-center text-2xl">
     <%= @set.name %>
-  </li>
-</ul>
+  </h1>
 
-<%# <span><%= link "Edit", to: Routes.set_path(@conn, :edit, @set) %1></span> %>
+  <ul class="mb-4">
+    <li>Number of puzzles: 0</li>
+  </ul>
+
+  <div class="mb-3 text-center">
+    <%= link "Delete Set", to: Routes.set_path(@conn, :delete, @set), method: :delete, class: "btn bg-red-300 p-1 px-2" %>
+  </div>
+</section>
+
+<div class="mt-7 text-center">
+  <%= link "Add Puzzle", to: "#", class: "btn" %>
+</div>
