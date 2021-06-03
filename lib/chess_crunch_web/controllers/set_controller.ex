@@ -5,7 +5,7 @@ defmodule ChessCrunchWeb.SetController do
   alias ChessCrunch.Sets.Set
 
   def index(conn, _params) do
-    sets = Sets.list_sets()
+    sets = Sets.list_sets(current_user(conn))
     render(conn, "index.html", sets: sets)
   end
 
@@ -15,7 +15,10 @@ defmodule ChessCrunchWeb.SetController do
   end
 
   def create(conn, %{"set" => set_params}) do
-    case Sets.create_set(set_params) do
+    set_params
+    |> Map.put("user_id", current_user(conn).id)
+    |> Sets.create_set()
+    |> case do
       {:ok, set} ->
         conn
         |> put_flash(:info, "Set created successfully.")
@@ -58,5 +61,9 @@ defmodule ChessCrunchWeb.SetController do
     conn
     |> put_flash(:info, "Set deleted successfully.")
     |> redirect(to: Routes.set_path(conn, :index))
+  end
+
+  defp current_user(conn) do
+    conn.assigns[:current_user]
   end
 end

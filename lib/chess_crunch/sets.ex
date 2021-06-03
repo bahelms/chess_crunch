@@ -17,8 +17,10 @@ defmodule ChessCrunch.Sets do
       [%Set{}, ...]
 
   """
-  def list_sets do
-    Repo.all(Set)
+  def list_sets(user) do
+    Set
+    |> where(user_id: ^user.id)
+    |> Repo.all()
   end
 
   @doc """

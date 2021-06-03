@@ -4,6 +4,7 @@ defmodule ChessCrunch.Sets.Set do
 
   schema "sets" do
     field :name, :string
+    belongs_to(:user, ChessCrunch.Accounts.User, type: :binary_id)
 
     timestamps()
   end
@@ -11,7 +12,7 @@ defmodule ChessCrunch.Sets.Set do
   @doc false
   def changeset(set, attrs) do
     set
-    |> cast(attrs, [:name])
-    |> validate_required([:name])
+    |> cast(attrs, [:name, :user_id])
+    |> validate_required([:name, :user_id])
   end
 end
