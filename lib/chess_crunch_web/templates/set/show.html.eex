@@ -13,5 +13,5 @@
 </section>
 
 <div class="mt-7 text-center">
-  <%= link "Add Drill", to: "#", class: "btn-green" %>
+  <%= link "Add Drill", to: Routes.drill_path(@conn, :new), class: "btn-green" %>
 </div>

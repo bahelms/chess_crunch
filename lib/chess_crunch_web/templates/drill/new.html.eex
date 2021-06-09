@@ -1,0 +1,4 @@
+<div class="mx-4">
+  <h1 class="text-2xl my-4">New Drill</h1>
+  <%= render "form.html", Map.put(assigns, :action, Routes.drill_path(@conn, :create)) %>
+</div>
