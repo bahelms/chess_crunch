@@ -4,7 +4,7 @@ defmodule ChessCrunch.Drills do
   """
 
   import Ecto.Query, warn: false
-  alias ChessCrunch.Repo
+  alias ChessCrunch.{ImageStorage, Repo}
 
   alias ChessCrunch.Drills.Drill
 
@@ -50,12 +50,18 @@ defmodule ChessCrunch.Drills do
 
   """
   def create_drill(attrs \\ %{}) do
-    IO.inspect(attrs, label: "Creating drill with attrs")
-
     %Drill{}
     |> Drill.changeset(attrs)
+    |> store_image(attrs)
     |> Repo.insert()
   end
+
+  def store_image(%{data: %{image_id: image_id}} = changeset, %{"position_image" => upload}) do
+    ImageStorage.store_image(upload, image_id)
+    changeset
+  end
+
+  def store_image(changeset, _), do: changeset
 
   @doc """
   Updates a drill.

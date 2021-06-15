@@ -50,7 +50,8 @@ defmodule ChessCrunch.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:phx_gen_auth, "~> 0.7", only: [:dev], runtime: false},
       {:ex_aws, "~> 2.2"},
-      {:ex_aws_s3, "~> 2.2"}
+      {:ex_aws_s3, "~> 2.2"},
+      {:hackney, "~> 1.17"}
     ]
   end
 

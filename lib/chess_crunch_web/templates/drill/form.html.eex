@@ -20,6 +20,7 @@
     </div>
 
     <div class="text-center mt-5">
+      <%= hidden_input f, :set_id, value: @set_id %>
       <%= submit "Save", class: "btn bg-blue-400 px-5" %>
     </div>
   </div>

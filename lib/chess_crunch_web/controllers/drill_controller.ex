@@ -4,17 +4,17 @@ defmodule ChessCrunchWeb.DrillController do
   alias ChessCrunch.Drills
   alias ChessCrunch.Drills.Drill
 
-  def new(conn, _params) do
+  def new(conn, %{"set_id" => set_id}) do
     changeset = Drills.change_drill(%Drill{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", changeset: changeset, set_id: set_id)
   end
 
   def create(conn, %{"drill" => drill_params}) do
     case Drills.create_drill(drill_params) do
-      {:ok, drill} ->
+      {:ok, _} ->
         conn
         |> put_flash(:info, "Drill created successfully.")
-        |> redirect(to: Routes.drill_path(conn, :show, drill))
+        |> redirect(to: Routes.set_path(conn, :show, drill_params["set_id"]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
