@@ -37,7 +37,7 @@ defmodule ChessCrunch.Sets do
       ** (Ecto.NoResultsError)
 
   """
-  def get_set!(id), do: Repo.get!(Set, id)
+  def get_set!(id), do: Repo.get!(Set, id) |> Repo.preload(:drills)
 
   @doc """
   Creates a set.

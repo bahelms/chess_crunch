@@ -9,6 +9,7 @@ defmodule ChessCrunch.Drills.Drill do
     field :solution, :string
     field :to_play, :string
     field :image_id, :string
+    field :name, :string
     belongs_to(:set, ChessCrunch.Sets.Set)
 
     timestamps()
@@ -18,8 +19,8 @@ defmodule ChessCrunch.Drills.Drill do
   def changeset(drill, attrs) do
     drill
     |> generate_image_id()
-    |> cast(attrs, [:fen, :solution, :to_play, :image_id, :set_id])
-    |> validate_required([:to_play, :set_id])
+    |> cast(attrs, [:fen, :solution, :to_play, :image_id, :set_id, :name])
+    |> validate_required([:to_play, :set_id, :name])
   end
 
   defp generate_image_id(drill) do

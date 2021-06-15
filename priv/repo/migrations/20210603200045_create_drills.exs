@@ -4,9 +4,10 @@ defmodule ChessCrunch.Repo.Migrations.CreateDrills do
   def change do
     create table(:drills, primary_key: false) do
       add :id, :binary_id, primary_key: true
+      add :name, :text, null: false
+      add :to_play, :string, null: false
       add :fen, :text
       add :solution, :text
-      add :to_play, :string
       add :image_id, :text
       add :details, :text
       add :set_id, references(:sets)

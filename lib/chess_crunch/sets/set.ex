@@ -4,7 +4,8 @@ defmodule ChessCrunch.Sets.Set do
 
   schema "sets" do
     field :name, :string
-    belongs_to(:user, ChessCrunch.Accounts.User, type: :binary_id)
+    has_many :drills, ChessCrunch.Drills.Drill
+    belongs_to :user, ChessCrunch.Accounts.User, type: :binary_id
 
     timestamps()
   end
