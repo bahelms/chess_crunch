@@ -20,10 +20,17 @@
       <%= label f, :to_play, "Black", for: :black_to_play %>
     </div>
 
-    <label class="btn px-5 mb-5">
-      Capture Position Image
-      <%= file_input f, :position_image, accept: "image/*", capture: "environment", style: "display: none;" %>
-    </label>
+    <div x-data="imageViewer()" class="">
+      <label class="btn px-5 mb-5 block">
+        Capture Position Image
+        <input type="file" id="drill_position_image" name="drill[position_image]" 
+          accept="image/*" capture="environment" class="hidden" @change="fileChosen" />
+      </label>
+
+      <template x-if="imageUrl">
+        <img :src="imageUrl" alt="" class="ml-auto mr-auto mb-5" />
+      </template>
+    </div>
 
     <div class="text-center">
       <%= hidden_input f, :set_id, value: @set_id %>

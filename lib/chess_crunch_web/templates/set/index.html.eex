@@ -10,11 +10,13 @@
     <%= link "Create new drills set", to: Routes.set_path(@conn, :new), class: "btn-blue p-2" %>
   </div>
 
-  <%= for set <- @sets do %>
-    <%= link to: Routes.set_path(@conn, :show, set) do %>
-      <div class="border m-3">
-        <%= set.name %>
-      </div>
+  <ul class="m-3 px-3 border rounded">
+    <%= for set <- @sets do %>
+      <li class="border-b last:border-b-0 py-1">
+        <%= link to: Routes.set_path(@conn, :show, set), class: "block" do %>
+          <%= set.name %>
+        <% end %>
+      </li>
     <% end %>
-  <% end %>
+  </ul>
 <% end %>

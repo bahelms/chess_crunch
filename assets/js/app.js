@@ -19,7 +19,16 @@ import {LiveSocket} from "phoenix_live_view"
 import "alpinejs"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
+let liveSocket = new LiveSocket("/live", Socket, {
+  params: {_csrf_token: csrfToken},
+  // dom: {
+  //   onBeforeElUpdated(from, to) {
+  //     if (from.__x) {
+  //       window.Alpine.clone(from.__x, to)
+  //     }
+  //   }
+  // }
+})
 
 // Show progress bar on live navigation and form submits
 topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
@@ -35,3 +44,18 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+window.imageViewer = () => ({
+  imageUrl: "",
+
+  fileChosen(event) {
+    this.fileToDataUrl(event, (src) => this.imageUrl = src)
+  },
+
+  fileToDataUrl(event, callback) {
+    if (!event.target.files.length) return
+
+    const reader = new FileReader()
+    reader.readAsDataURL(event.target.files[0])
+    reader.onload = (e) => callback(e.target.result)
+  }
+})
