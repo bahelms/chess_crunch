@@ -36,7 +36,7 @@ defmodule ChessCrunchWeb.Router do
     pipe_through [:browser, :require_authenticated_user]
 
     resources "/", SetController, only: [:index, :new, :create, :show, :delete]
-    resources "/drills", DrillController, only: [:new, :create, :delete]
+    resources "/positions", PositionController, only: [:new, :create, :delete]
     get "/users/settings", UserSettingsController, :edit
     put "/users/settings", UserSettingsController, :update
     get "/users/settings/confirm_email/:token", UserSettingsController, :confirm_email

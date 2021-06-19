@@ -4,9 +4,9 @@ defmodule ChessCrunch.Sets do
   """
 
   import Ecto.Query, warn: false
-  alias ChessCrunch.Repo
+  alias ChessCrunch.{ImageStorage, Repo}
 
-  alias ChessCrunch.Sets.Set
+  alias ChessCrunch.Sets.{Position, Set}
 
   @doc """
   Returns the list of sets.
@@ -37,7 +37,7 @@ defmodule ChessCrunch.Sets do
       ** (Ecto.NoResultsError)
 
   """
-  def get_set!(id), do: Repo.get!(Set, id) |> Repo.preload(:drills)
+  def get_set!(id), do: Repo.get!(Set, id) |> Repo.preload(:positions)
 
   @doc """
   Creates a set.
@@ -103,4 +103,22 @@ defmodule ChessCrunch.Sets do
   def change_set(%Set{} = set, attrs \\ %{}) do
     Set.changeset(set, attrs)
   end
+
+  def change_position(%Position{} = position, attrs \\ %{}) do
+    Position.changeset(position, attrs)
+  end
+
+  def create_position(attrs \\ %{}) do
+    %Position{}
+    |> Position.changeset(attrs)
+    |> store_image(attrs)
+    |> Repo.insert()
+  end
+
+  def store_image(%{data: %{image_id: image_id}} = changeset, %{"image" => upload}) do
+    ImageStorage.store_image(upload, image_id)
+    changeset
+  end
+
+  def store_image(changeset, _), do: changeset
 end

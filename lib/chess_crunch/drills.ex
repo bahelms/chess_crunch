@@ -52,33 +52,7 @@ defmodule ChessCrunch.Drills do
   def create_drill(attrs \\ %{}) do
     %Drill{}
     |> Drill.changeset(attrs)
-    |> store_image(attrs)
     |> Repo.insert()
-  end
-
-  def store_image(%{data: %{image_id: image_id}} = changeset, %{"position_image" => upload}) do
-    ImageStorage.store_image(upload, image_id)
-    changeset
-  end
-
-  def store_image(changeset, _), do: changeset
-
-  @doc """
-  Updates a drill.
-
-  ## Examples
-
-      iex> update_drill(drill, %{field: new_value})
-      {:ok, %Drill{}}
-
-      iex> update_drill(drill, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_drill(%Drill{} = drill, attrs) do
-    drill
-    |> Drill.changeset(attrs)
-    |> Repo.update()
   end
 
   @doc """

@@ -1,8 +1,8 @@
-defmodule ChessCrunch.Repo.Migrations.CreateDrills do
+defmodule ChessCrunch.Repo.Migrations.CreatePositions do
   use Ecto.Migration
 
   def change do
-    create table(:drills, primary_key: false) do
+    create table(:positions, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :name, :text, null: false
       add :to_play, :string, null: false

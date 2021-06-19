@@ -11,10 +11,26 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
-## Learn more
+### Features
+* Create sets of drills to practice. Take picture from phone/manual
+* Pull in games from chess.com and analyze them with stockfish
+    * Be able to select a position to turn into a drill like `checkmates` or `defense`
+* Compile expert games (chessgames.com) based on a search and auto play through them with some delay between moves (2 secs)
+* Dan Heisman study book of positions from played games to drill
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+Cycles -> cycles_sets <- Sets
+Cycle: timestamps, completed_on, time_limit
+Drill: timestamps, answer, duration, cycle_id, position_id
+
+Running a cycle on a set
+* Click button
+* Redirected to start first position in first set
+* After all positions in all sets have been run, mark time on completed_on
+
+Running a drill
+* Shown image, to play, solution input
+* Timer starts
+* Input solution
+* Click done button
+* Timer stops
+* Start next position in set

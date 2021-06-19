@@ -23,7 +23,7 @@
     <div x-data="imageViewer()" class="">
       <label class="btn px-5 mb-5 block">
         Capture Position Image
-        <input type="file" id="drill_position_image" name="drill[position_image]" 
+        <input type="file" id="position_image" name="position[image]" 
           accept="image/*" capture="environment" class="hidden" @change="fileChosen" />
       </label>
 
