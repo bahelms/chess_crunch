@@ -18,6 +18,7 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 * Compile expert games (chessgames.com) based on a search and auto play through them with some delay between moves (2 secs)
 * Dan Heisman study book of positions from played games to drill
 
+#### Dev Notes
 Cycles -> cycles_sets <- Sets
 Cycle: timestamps, completed_on, time_limit
 Drill: timestamps, answer, duration, cycle_id, position_id

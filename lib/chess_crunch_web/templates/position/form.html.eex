@@ -1,4 +1,4 @@
-<%= form_for @changeset, @action, [multipart: true], fn f -> %>
+<%= form_for @changeset, @action, [multipart: true, "x-data": "{saving: false}"], fn f -> %>
   <%= if @changeset.action do %>
     <div class="alert alert-danger">
       <p>Oops, something went wrong! Please check the errors below.</p>
@@ -32,9 +32,13 @@
       </template>
     </div>
 
-    <div class="text-center">
+    <div  class="text-center">
       <%= hidden_input f, :set_id, value: @set_id %>
-      <%= submit "Save", class: "btn bg-blue-400 px-5" %>
+      <button
+          x-text="saving ? 'Saving...' : 'Save'"
+          @click="saving = true"
+          type="submit"
+          class="btn bg-blue-400 px-5">Save</button>
     </div>
   </div>
 <% end %>
