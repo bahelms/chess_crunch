@@ -1,0 +1,37 @@
+<%= form_for @changeset, @action, fn f -> %>
+  <%= if @changeset.action do %>
+    <div class="alert alert-danger">
+      <p>Oops, something went wrong! Please check the errors below.</p>
+    </div>
+  <% end %>
+
+  <div class="text-center mb-5">
+    <label class="">
+      <%= text_input f, :name, placeholder: "Name", class: "border rounded ml-2 p-1" %>
+      <%= error_tag f, :name %>
+    </label>
+  </div>
+
+  <div>Select sets to include</div>
+  <div class="flex flex-col space-y-0.5 border rounded mt-2">
+    <ul class="mx-3 overflow-hidden overflow-y-scroll h-60">
+      <%= for set <- @sets do %>
+        <li class="border-b last:border-b-0 py-1">
+          <%= checkbox f, :"set-#{set.id}", hidden_input: true, id: "set-#{set.id}" %>
+          <%= label f, :"set-#{set.id}", set.name, for: "set-#{set.id}" %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+
+  <div class="mt-5">
+    <div>Select a starting time limit for each drill (mm:ss)</div>
+    <div class="text-center mt-4">
+      <%= select f, :time_limit, ["06:00": 360, "03:00": 180, "01:30": 90, "00:45": 45, "00:25": 25, "00:15": 15, "00:10": 10], class: "border rounded px-5" %>
+    </div>
+  </div>
+
+  <div class="text-center mt-5">
+    <%= submit "Save", class: "btn bg-blue-400 px-5" %>
+  </div>
+<% end %>

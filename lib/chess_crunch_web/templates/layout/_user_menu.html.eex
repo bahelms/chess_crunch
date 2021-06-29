@@ -7,7 +7,8 @@
   <nav class="absolute top-14 left-0 shadow-md rounded-lg flex-col pt-2 pr-2 bg-gray-200 w-full md:flex md:rounded-none md:shadow-none md:relative md:top-0 md:space-x-6 md:w-auto md:bg-transparent md:flex-row md:pt-0"
     :class="{'flex': mobileMenuOpen, 'hidden': !mobileMenuOpen}"
     @click.away="mobileMenuOpen = false">
-    <%= link "Drills", to: Routes.set_path(@conn, :index), class: "pl-3 py-1" %>
+    <%= link "Drills", to: Routes.cycle_path(@conn, :index), class: "pl-3 py-1" %>
+    <%= link "Position Sets", to: Routes.set_path(@conn, :index), class: "pl-3 py-1" %>
     <%= link "Settings", to: Routes.user_settings_path(@conn, :edit), class: "pl-3 py-1" %>
     <%= link "Log out", to: Routes.user_session_path(@conn, :delete), method: :delete, class: "pl-3 py-1" %>
   </nav>
