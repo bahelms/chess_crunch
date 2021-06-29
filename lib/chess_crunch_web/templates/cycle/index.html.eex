@@ -24,6 +24,16 @@
             Completed:
             <%= drills_completed(cycle) %>
           </div>
+
+          <div>
+            Time Limit:
+            <%= format_time_limit(cycle.time_limit) %>
+          </div>
+
+          <div>
+            Round:
+            <%= cycle.round %>
+          </div>
         </div>
       </li>
     <% end %>

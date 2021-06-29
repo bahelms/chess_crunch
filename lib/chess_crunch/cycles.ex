@@ -18,7 +18,7 @@ defmodule ChessCrunch.Cycles do
   end
 
   def create_cycle(attrs \\ %{}) do
-    %Cycle{}
+    %Cycle{round: 1}
     |> Cycle.changeset(attrs)
     |> Repo.insert()
   end
