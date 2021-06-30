@@ -15,9 +15,7 @@
       <li class="border-b last:border-b-0 py-1">
         <div>
           <div class="flex justify-between">
-            <%= link to: Routes.cycle_path(@conn, :show, cycle), class: "block" do %>
-              <strong><%= cycle.name %></strong>
-            <% end %>
+            <strong><%= cycle.name %></strong>
             <div class="text-red-300"><%= status(cycle) %></div>
           </div>
           <div>

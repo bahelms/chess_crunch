@@ -7,8 +7,10 @@ defmodule ChessCrunch.Cycles.Cycle do
     field :completed_on, :utc_datetime
     field :time_limit, :integer
     field :round, :integer
-    belongs_to :user, ChessCrunch.Accounts.User, type: :binary_id
+
     many_to_many :sets, ChessCrunch.Sets.Set, join_through: "cycles_sets"
+    has_many :drills, ChessCrunch.Cycles.Drill
+    belongs_to :user, ChessCrunch.Accounts.User, type: :binary_id
 
     timestamps()
   end

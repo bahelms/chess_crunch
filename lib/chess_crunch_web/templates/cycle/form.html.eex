@@ -17,7 +17,7 @@
     <ul class="mx-3 overflow-hidden overflow-y-scroll h-60">
       <%= for set <- @sets do %>
         <li class="border-b last:border-b-0 py-1">
-          <%= checkbox f, :"set-#{set.id}", hidden_input: true, id: "set-#{set.id}" %>
+          <%= checkbox f, :"set-#{set.id}", hidden_input: false, id: "set-#{set.id}" %>
           <%= label f, :"set-#{set.id}", set.name, for: "set-#{set.id}" %>
         </li>
       <% end %>
