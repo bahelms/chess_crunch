@@ -14,9 +14,10 @@ defmodule ChessCrunchWeb.CycleController do
     render(conn, "new.html", changeset: changeset, sets: sets)
   end
 
-  def create(conn, %{"cycle" => set_params}) do
-    set_params
+  def create(conn, %{"cycle" => cycle_params}) do
+    cycle_params
     |> Map.put("user_id", conn.assigns[:current_user].id)
+    |> parse_set_ids()
     |> Cycles.create_cycle()
     |> case do
       {:ok, _cycle} ->
@@ -34,5 +35,18 @@ defmodule ChessCrunchWeb.CycleController do
   def show(conn, %{"id" => id}) do
     cycle = Cycles.get_cycle(id)
     render(conn, "show.html", cycle: cycle)
+  end
+
+  defp parse_set_ids(params) do
+    set_ids =
+      params
+      |> Map.keys()
+      |> Enum.map(fn
+        "set-" <> id -> id
+        _ -> nil
+      end)
+      |> Enum.filter(&(!is_nil(&1)))
+
+    Map.put(params, "set_ids", set_ids)
   end
 end

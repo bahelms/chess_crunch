@@ -23,6 +23,12 @@ defmodule ChessCrunch.Sets do
     |> Repo.all()
   end
 
+  def find_sets_by_ids(ids) do
+    Set
+    |> where([set], set.id in ^ids)
+    |> Repo.all()
+  end
+
   @doc """
   Gets a single set.
 

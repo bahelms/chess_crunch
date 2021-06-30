@@ -8,6 +8,7 @@ defmodule ChessCrunch.Cycles.Cycle do
     field :time_limit, :integer
     field :round, :integer
     belongs_to :user, ChessCrunch.Accounts.User, type: :binary_id
+    many_to_many :sets, ChessCrunch.Sets.Set, join_through: "cycles_sets"
 
     timestamps()
   end

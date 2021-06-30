@@ -5,6 +5,7 @@ defmodule ChessCrunch.Accounts.User do
   @derive {Inspect, except: [:password]}
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
   schema "users" do
     field :email, :string
     field :password, :string, virtual: true
