@@ -20,7 +20,8 @@ import "alpinejs"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
-  params: {_csrf_token: csrfToken},
+ params: {_csrf_token: csrfToken},
+  // make LiveView work nicely with alpinejs
   // dom: {
   //   onBeforeElUpdated(from, to) {
   //     if (from.__x) {
