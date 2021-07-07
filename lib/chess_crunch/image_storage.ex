@@ -1,10 +1,26 @@
 defmodule ChessCrunch.ImageStorage do
   @bucket "chess-crunch"
 
-  def store_image(upload, image_id) do
-    image_name = "drills/#{image_id}#{Path.extname(upload.filename)}"
+  def store_image(upload) do
+    filename = "#{Ecto.UUID.generate()}#{Path.extname(upload.filename)}"
 
-    ExAws.S3.put_object(@bucket, image_name, File.read!(upload.path))
-    |> ExAws.request!()
+    {:ok, _} =
+      ExAws.S3.put_object(
+        @bucket,
+        "positions/#{filename}",
+        File.read!(upload.path),
+        object_options()
+      )
+      |> ExAws.request()
+
+    filename
+  end
+
+  def image_url(filename) do
+    "https://chess-crunch.s3.amazonaws.com/positions/#{filename}"
+  end
+
+  defp object_options do
+    [acl: :public_read]
   end
 end

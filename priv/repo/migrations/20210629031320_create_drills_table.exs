@@ -7,8 +7,8 @@ defmodule ChessCrunch.Repo.Migrations.CreateDrillsTable do
       add :answer, :text
       add :duration, :integer
       add :completed_on, :utc_datetime
-      add :cycle_id, references(:cycles)
-      add :position_id, references(:positions, type: :binary_id)
+      add :cycle_id, references(:cycles, on_delete: :delete_all)
+      add :position_id, references(:positions, type: :binary_id, on_delete: :delete_all)
       timestamps()
     end
 
