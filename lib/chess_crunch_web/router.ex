@@ -36,7 +36,8 @@ defmodule ChessCrunchWeb.Router do
     pipe_through [:browser, :require_authenticated_user]
 
     get "/", Redirector, to: "/cycles"
-    resources "/cycles", CycleController, only: [:index, :show, :create, :new]
+    resources "/cycles", CycleController, only: [:index, :create, :new]
+    live "/cycles/:id", CycleLive
     resources "/sets", SetController, only: [:index, :new, :create, :show, :delete]
     resources "/positions", PositionController, only: [:new, :create, :delete]
     get "/users/settings", UserSettingsController, :edit

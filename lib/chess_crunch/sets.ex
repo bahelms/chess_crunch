@@ -115,16 +115,14 @@ defmodule ChessCrunch.Sets do
   end
 
   def create_position(attrs \\ %{}) do
-    %Position{}
+    %Position{image_filename: store_image(attrs)}
     |> Position.changeset(attrs)
-    |> store_image(attrs)
     |> Repo.insert()
   end
 
-  def store_image(%{data: %{image_id: image_id}} = changeset, %{"image" => upload}) do
-    ImageStorage.store_image(upload, image_id)
-    changeset
+  def store_image(%{"image" => upload}) do
+    ImageStorage.store_image(upload)
   end
 
-  def store_image(changeset, _), do: changeset
+  def store_image(_), do: ""
 end

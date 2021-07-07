@@ -8,7 +8,7 @@ defmodule ChessCrunch.Sets.Position do
     field :fen, :string
     field :solution, :string
     field :to_play, :string
-    field :image_id, :string
+    field :image_filename, :string
     field :name, :string
     belongs_to(:set, ChessCrunch.Sets.Set)
 
@@ -18,12 +18,7 @@ defmodule ChessCrunch.Sets.Position do
   @doc false
   def changeset(position, attrs) do
     position
-    |> generate_image_id()
-    |> cast(attrs, [:fen, :solution, :to_play, :image_id, :set_id, :name])
+    |> cast(attrs, [:fen, :solution, :to_play, :image_filename, :set_id, :name])
     |> validate_required([:to_play, :set_id, :name])
-  end
-
-  defp generate_image_id(position) do
-    Map.put(position, :image_id, Ecto.UUID.generate())
   end
 end
