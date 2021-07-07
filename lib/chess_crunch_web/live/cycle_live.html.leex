@@ -1,20 +1,17 @@
-<div>
-  <%# <%= img_tag ImageStorage.image_url(@drill.position.image_filename), class: "w-4/5 h-96 m-auto" %1> %>
+<%= form_for :drill, "#", [phx_submit: :save_answer, class: "text-center"], fn f -> %>
   <%= img_tag "/images/801359b8-d0fd-45a5-b081-75dddfda381c.jpg", class: "w-4/5 h-96 m-auto" %>
-  <div class="text-center mt-2">
-    To Play:
-    <%= format_to_play(@drill.position) %>
-  </div>
-</div>
+  <%# <%= img_tag ImageStorage.image_url(@drill.position.image_filename), class: "w-4/5 h-96 m-auto" %1> %>
 
-<%= form_for :drill, "#", [class: "text-center mt-2"], fn f -> %>
+  <div class="my-2">
+    To Play: <%= format_to_play(@drill.position) %>
+  </div>
+
   <%= label do %>
     Answer:
     <%= text_input f, :answer, placeholder: "1. Qb4 h6 2. Bxa2 Nd7", class: "p-1 border rounded" %>
   <% end %>
 
   <div class="mt-4">
-    <%= submit "Save", class: "btn bg-blue-400 px-5" %>
+    <%= submit "Save and Go To Next", class: "btn bg-green-400 px-5 py-2" %>
   </div>
 <% end %>
-<%# <chess-board></chess-board> %>
