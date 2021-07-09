@@ -6,14 +6,14 @@
     <%= link "Create new cycle", to: Routes.cycle_path(@conn, :new), class: "btn-blue p-2" %>
   </div>
 <% else %>
-  <section x-data="{ modalOpen: false, cycle: null }">
+  <section x-data="cycleIndex()">
     <div class="my-6 text-center">
       <%= link "Create new cycle", to: Routes.cycle_path(@conn, :new), class: "btn-blue p-2" %>
     </div>
 
     <ul class="m-3 px-3 border rounded">
       <%= for cycle <- @cycles do %>
-        <li @click="modalOpen = true; cycle = <%= cycle.id %>" class="border-b last:border-b-0 py-1">
+        <li @click="selectCycle(<%= cycle.id %>, <%= cycle.completed_on %>)" class="border-b last:border-b-0 py-1">
           <div>
             <div class="flex justify-between">
               <strong><%= cycle.name %></strong>

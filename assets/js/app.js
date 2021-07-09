@@ -17,18 +17,19 @@ import {Socket} from "phoenix"
 import topbar from "topbar"
 import {LiveSocket} from "phoenix_live_view"
 import "alpinejs"
+import "chessboard-element"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
  params: {_csrf_token: csrfToken},
   // make LiveView work nicely with alpinejs
-  // dom: {
-  //   onBeforeElUpdated(from, to) {
-  //     if (from.__x) {
-  //       window.Alpine.clone(from.__x, to)
-  //     }
-  //   }
-  // }
+  dom: {
+    onBeforeElUpdated(from, to) {
+      if (from.__x) {
+        window.Alpine.clone(from.__x, to)
+      }
+    }
+  }
 })
 
 // Show progress bar on live navigation and form submits
@@ -60,3 +61,29 @@ window.imageViewer = () => ({
     reader.onload = (e) => callback(e.target.result)
   }
 })
+
+window.cycleIndex = () => ({
+  modalOpen: false,
+  cycle: null,
+
+  selectCycle(cycle_id, completed_on) {
+    console.log('completed_on', completed_on)
+    this.cycle = cycle_id
+    this.modalOpen = (completed_on ? false : true)
+  }
+})
+
+
+const zeroPad = (val) => {
+  const valString = val + ""
+  if (valString.length == 2) {
+    return valString
+  }
+  return "0" + valString
+}
+
+window.secondsToTimeFormat = (secs) => {
+  const mins = zeroPad(parseInt(secs / 60))
+  const remainingSecs = zeroPad(secs % 60)
+  return `${mins}:${remainingSecs}`
+}

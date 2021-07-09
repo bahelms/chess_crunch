@@ -9,7 +9,7 @@ defmodule ChessCrunchWeb.CycleView do
   def status(_), do: "Completed"
 
   def drills_completed(cycle) do
-    "#{Cycles.total_completed_drills(cycle)}/#{Cycles.positions_in_cycle(cycle)}"
+    "#{Cycles.total_drills(cycle)}/#{Cycles.total_positions(cycle)}"
   end
 
   def format_time_limit(360), do: "6 min"
