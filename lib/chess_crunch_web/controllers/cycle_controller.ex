@@ -5,7 +5,10 @@ defmodule ChessCrunchWeb.CycleController do
   alias ChessCrunch.Cycles.Cycle
 
   def index(conn, _params) do
-    render(conn, :index, cycles: Cycles.list_cycles(conn.assigns[:current_user]))
+    %{completed: completed, in_progress: in_progress} =
+      Cycles.list_cycles_grouped_by_status(conn.assigns[:current_user])
+
+    render(conn, :index, completed_cycles: completed, in_progress_cycles: in_progress)
   end
 
   def new(conn, _params) do
@@ -27,7 +30,6 @@ defmodule ChessCrunchWeb.CycleController do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         sets = Sets.list_sets(conn.assigns[:current_user])
-
         render(conn, "new.html", changeset: changeset, sets: sets)
     end
   end

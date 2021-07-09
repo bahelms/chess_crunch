@@ -7,7 +7,7 @@ defmodule ChessCrunch.CyclesTest do
 
   setup do
     {:ok, user} = Accounts.register_user(%{email: "bob@org.net", password: "123412341234"})
-    {:ok, valid_attrs: Map.put(@valid_attrs, "user_id", user.id)}
+    {:ok, valid_attrs: Map.put(@valid_attrs, "user_id", user.id), user: user}
   end
 
   defp create_sets(user_id) do
@@ -66,7 +66,22 @@ defmodule ChessCrunch.CyclesTest do
     cycle
   end
 
+  defp create_cycle_with_sets(%{valid_attrs: attrs} = context) do
+    %{sets: sets} = create_sets(attrs["user_id"])
+    cycle = create_cycle(attrs, Enum.map(sets, & &1.id))
+    Map.merge(context, %{cycle: cycle, sets: sets})
+  end
+
+  defp no_more_drills(%{valid_attrs: attrs}) do
+    {:ok, set} = Sets.create_set(%{name: "set1", user_id: attrs["user_id"]})
+    Sets.create_position(%{name: "1", to_play: "black", set_id: set.id})
+    cycle = create_cycle(attrs, [set.id])
+    %{cycle: cycle}
+  end
+
   describe "create_cycle/1" do
+    setup [:create_cycle_with_sets]
+
     test "with valid attrs creates a cycle", %{valid_attrs: attrs} do
       assert {:ok, %Cycle{} = cycle} = Cycles.create_cycle(attrs)
       assert cycle.name == "Test"
@@ -77,41 +92,24 @@ defmodule ChessCrunch.CyclesTest do
       assert cycle.round == 1
     end
 
-    test "given set IDs are associated", %{valid_attrs: attrs} do
-      {:ok, set1} = Sets.create_set(%{name: "set1", user_id: attrs["user_id"]})
-      {:ok, set2} = Sets.create_set(%{name: "set2", user_id: attrs["user_id"]})
-
-      {:ok, cycle} =
-        attrs
-        |> Map.put("set_ids", [set1.id, set2.id])
-        |> Cycles.create_cycle()
-
-      cycle = Repo.preload(cycle, :sets)
-      assert length(cycle.sets) == 2
+    test "given set IDs are associated", %{cycle: cycle} do
+      assert length(Repo.preload(cycle, :sets).sets) == 2
     end
   end
 
   describe "total_positions/1" do
-    test "returns the total number of positions for all sets in cycle", %{valid_attrs: attrs} do
-      {:ok, set1} = Sets.create_set(%{name: "set1", user_id: attrs["user_id"]})
-      {:ok, set2} = Sets.create_set(%{name: "set2", user_id: attrs["user_id"]})
-      Sets.create_position(%{name: "1", set_id: set1.id, to_play: "white"})
-      Sets.create_position(%{name: "2", set_id: set1.id, to_play: "white"})
-      Sets.create_position(%{name: "1", set_id: set2.id, to_play: "white"})
+    setup [:create_cycle_with_sets]
 
-      {:ok, cycle} =
-        attrs
-        |> Map.put("set_ids", [set1.id, set2.id])
-        |> Cycles.create_cycle()
-
-      assert Cycles.total_positions(cycle) == 3
+    test "returns the total number of positions for all sets in cycle", %{cycle: cycle} do
+      assert Cycles.total_positions(cycle) == 5
     end
   end
 
   describe "total_drills/1" do
+    setup [:create_cycle_with_sets]
+
     test "returns number of completed drills", %{valid_attrs: attrs} do
-      {:ok, set1} = Sets.create_set(%{name: "set1", user_id: attrs["user_id"]})
-      {:ok, pos1} = Sets.create_position(%{name: "1", set_id: set1.id, to_play: "white"})
+      pos1 = Repo.get_by!(Sets.Position, name: "100")
       {:ok, cycle} = Cycles.create_cycle(attrs)
 
       Cycles.create_drill(%{position_id: pos1.id, cycle_id: cycle.id})
@@ -123,23 +121,18 @@ defmodule ChessCrunch.CyclesTest do
   end
 
   describe "next_position/1 with no drills" do
-    test "returns the first ordered position that doesn't have a drill", %{
-      valid_attrs: attrs
-    } do
-      %{sets: sets} = create_sets(attrs["user_id"])
-      cycle = create_cycle(attrs, Enum.map(sets, & &1.id))
+    setup [:create_cycle_with_sets]
 
+    test "returns the first ordered position that doesn't have a drill", %{cycle: cycle} do
       position = Cycles.next_position(cycle.id)
       assert position.name == "100"
     end
   end
 
   describe "next_position/1 with first position having a drill" do
-    test "returns the first ordered position that doesn't have a drill", %{
-      valid_attrs: attrs
-    } do
-      %{sets: sets} = create_sets(attrs["user_id"])
-      cycle = create_cycle(attrs, Enum.map(sets, & &1.id))
+    setup [:create_cycle_with_sets]
+
+    test "returns the first ordered position that doesn't have a drill", %{cycle: cycle} do
       pos1 = Repo.get_by!(Sets.Position, name: "100")
       Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos1.id})
 
@@ -149,11 +142,9 @@ defmodule ChessCrunch.CyclesTest do
   end
 
   describe "next_position/1 with third position having a drill" do
-    test "returns the first ordered position that doesn't have a drill", %{
-      valid_attrs: attrs
-    } do
-      %{sets: sets} = create_sets(attrs["user_id"])
-      cycle = create_cycle(attrs, Enum.map(sets, & &1.id))
+    setup [:create_cycle_with_sets]
+
+    test "returns the first ordered position that doesn't have a drill", %{cycle: cycle} do
       pos3 = Repo.get_by!(Sets.Position, name: "102")
       Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos3.id})
 
@@ -163,11 +154,9 @@ defmodule ChessCrunch.CyclesTest do
   end
 
   describe "next_position/1 with first two positions having a drill" do
-    test "returns the first ordered position that doesn't have a drill", %{
-      valid_attrs: attrs
-    } do
-      %{sets: sets} = create_sets(attrs["user_id"])
-      cycle = create_cycle(attrs, Enum.map(sets, & &1.id))
+    setup [:create_cycle_with_sets]
+
+    test "returns the first ordered position that doesn't have a drill", %{cycle: cycle} do
       pos1 = Repo.get_by!(Sets.Position, name: "100")
       pos2 = Repo.get_by!(Sets.Position, name: "101")
       Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos1.id})
@@ -179,9 +168,9 @@ defmodule ChessCrunch.CyclesTest do
   end
 
   describe "next_position/1 with all positions having drills" do
-    test "returns nil", %{valid_attrs: attrs} do
-      %{sets: sets} = create_sets(attrs["user_id"])
-      cycle = create_cycle(attrs, Enum.map(sets, & &1.id))
+    setup [:create_cycle_with_sets]
+
+    test "returns nil", %{cycle: cycle} do
       pos1 = Repo.get_by!(Sets.Position, name: "100")
       pos2 = Repo.get_by!(Sets.Position, name: "101")
       pos3 = Repo.get_by!(Sets.Position, name: "102")
@@ -197,10 +186,32 @@ defmodule ChessCrunch.CyclesTest do
     end
   end
 
+  describe "next_position/1 with multiple cycles using the same sets" do
+    setup [:create_cycle_with_sets]
+
+    test "returns the first ordered position that doesn't have a drill", %{
+      cycle: cycle1,
+      sets: sets,
+      valid_attrs: attrs
+    } do
+      cycle2 = create_cycle(attrs, Enum.map(sets, & &1.id))
+      pos1 = Repo.get_by!(Sets.Position, name: "100")
+      pos2 = Repo.get_by!(Sets.Position, name: "101")
+      pos3 = Repo.get_by!(Sets.Position, name: "102")
+
+      Cycles.create_drill(%{cycle_id: cycle1.id, position_id: pos1.id})
+      Cycles.create_drill(%{cycle_id: cycle1.id, position_id: pos2.id})
+      Cycles.create_drill(%{cycle_id: cycle1.id, position_id: pos3.id})
+
+      next_pos = Cycles.next_position(cycle2.id)
+      assert next_pos.name == "100"
+    end
+  end
+
   describe "next_drill/1" do
-    test "returns a preloaded drill for the next position", %{valid_attrs: attrs} do
-      %{sets: sets} = create_sets(attrs["user_id"])
-      cycle = create_cycle(attrs, Enum.map(sets, & &1.id))
+    setup [:create_cycle_with_sets]
+
+    test "returns a preloaded drill for the next position", %{cycle: cycle} do
       pos1 = Repo.get_by!(Sets.Position, name: "100")
       Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos1.id})
 
@@ -211,19 +222,16 @@ defmodule ChessCrunch.CyclesTest do
       assert drill.cycle_id == cycle.id
     end
 
-    test "handles a string cycle_id", %{valid_attrs: attrs} do
-      %{sets: sets} = create_sets(attrs["user_id"])
-      cycle = create_cycle(attrs, Enum.map(sets, & &1.id))
-
+    test "handles a string cycle_id", %{cycle: cycle} do
       drill = Cycles.next_drill(Integer.to_string(cycle.id))
       assert drill.cycle_id == cycle.id
     end
   end
 
   describe "next_drill/1 when there is no next position" do
-    test "returns nil", %{valid_attrs: attrs} do
-      %{sets: sets} = create_sets(attrs["user_id"])
-      cycle = create_cycle(attrs, Enum.map(sets, & &1.id))
+    setup [:create_cycle_with_sets]
+
+    test "returns nil", %{cycle: cycle} do
       pos1 = Repo.get_by!(Sets.Position, name: "100")
       pos2 = Repo.get_by!(Sets.Position, name: "101")
       pos3 = Repo.get_by!(Sets.Position, name: "102")
@@ -236,6 +244,75 @@ defmodule ChessCrunch.CyclesTest do
       Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos5.id})
 
       refute Cycles.next_drill(cycle.id)
+    end
+  end
+
+  describe "complete_drill/3" do
+    setup [:create_cycle_with_sets]
+
+    test "creates a drill record", %{cycle: cycle} do
+      drill = Cycles.next_drill(cycle.id)
+      params = %{"answer" => "garbage", "duration" => "20"}
+
+      Cycles.complete_drill(drill, params, cycle.id)
+      assert Cycles.total_drills(cycle) == 1
+    end
+
+    test "returns the next drill if there is one", %{cycle: cycle} do
+      drill = Cycles.next_drill(cycle.id)
+      params = %{"answer" => "garbage", "duration" => "20"}
+
+      assert {:next_drill, drill} = Cycles.complete_drill(drill, params, cycle.id)
+      assert Repo.preload(drill, :position).position.name == "101"
+    end
+  end
+
+  describe "complete_drill/3 with no more drills" do
+    setup [:no_more_drills]
+
+    test "completes the cycle", %{cycle: cycle} do
+      drill = Cycles.next_drill(cycle.id)
+      params = %{"answer" => "garbage", "duration" => "20"}
+
+      assert :cycle_completed = Cycles.complete_drill(drill, params, cycle.id)
+      assert Cycles.get_cycle(cycle.id).completed_on
+    end
+
+    test "creates a new cycle for the next round", %{cycle: cycle} do
+      drill = Cycles.next_drill(cycle.id)
+      params = %{"answer" => "garbage", "duration" => "20"}
+
+      Cycles.complete_drill(drill, params, cycle.id)
+      assert Repo.get_by!(Cycle, %{round: 2})
+    end
+  end
+
+  describe "list_cycles_grouped_by_status/1" do
+    test "returns completed and in progress", %{valid_attrs: attrs, user: user} do
+      completed_attrs = Map.put(attrs, "completed_on", DateTime.utc_now())
+      Cycles.create_cycle(attrs)
+      Cycles.create_cycle(attrs)
+      Cycles.create_cycle(attrs)
+      Cycles.create_cycle(completed_attrs)
+      Cycles.create_cycle(completed_attrs)
+
+      %{completed: completed, in_progress: in_progress} =
+        Cycles.list_cycles_grouped_by_status(user)
+
+      assert length(completed) == 2
+      assert length(in_progress) == 3
+    end
+
+    test "returns only completed", %{valid_attrs: attrs, user: user} do
+      completed_attrs = Map.put(attrs, "completed_on", DateTime.utc_now())
+      Cycles.create_cycle(completed_attrs)
+      Cycles.create_cycle(completed_attrs)
+
+      %{completed: completed, in_progress: in_progress} =
+        Cycles.list_cycles_grouped_by_status(user)
+
+      assert length(completed) == 2
+      assert length(in_progress) == 0
     end
   end
 end

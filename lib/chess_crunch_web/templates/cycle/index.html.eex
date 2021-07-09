@@ -1,4 +1,4 @@
-<%= if Enum.empty?(@cycles) do %>
+<%= if Enum.empty?(@completed_cycles) && Enum.empty?(@in_progress_cycles) do %>
   <div class="text-center mt-24">
     <div>You have not started any drill cycles.</div>
   </div>
@@ -12,7 +12,34 @@
     </div>
 
     <ul class="m-3 px-3 border rounded">
-      <%= for cycle <- @cycles do %>
+      <%= for cycle <- @in_progress_cycles do %>
+        <li @click="selectCycle(<%= cycle.id %>, <%= cycle.completed_on %>)" class="border-b last:border-b-0 py-1">
+          <div>
+            <div class="flex justify-between">
+              <strong><%= cycle.name %></strong>
+              <div class="text-red-300"><%= status(cycle) %></div>
+            </div>
+            <div>
+              Completed:
+              <%= drills_completed(cycle) %>
+            </div>
+
+            <div>
+              Time Limit:
+              <%= format_time_limit(cycle.time_limit) %>
+            </div>
+
+            <div>
+              Round:
+              <%= cycle.round %>
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+    <hr>
+    <ul class="m-3 px-3 border rounded">
+      <%= for cycle <- @completed_cycles do %>
         <li @click="selectCycle(<%= cycle.id %>, <%= cycle.completed_on %>)" class="border-b last:border-b-0 py-1">
           <div>
             <div class="flex justify-between">

@@ -13,6 +13,26 @@ defmodule ChessCrunch.Cycles do
     |> Repo.all()
   end
 
+  def list_cycles_grouped_by_status(user) do
+    list_cycles(user)
+    |> Enum.reduce(%{completed: [], in_progress: []}, fn
+      %{completed_on: nil} = cycle, map ->
+        update_map_list(map, cycle, :in_progress)
+
+      cycle, map ->
+        update_map_list(map, cycle, :completed)
+    end)
+  end
+
+  defp update_map_list(map, cycle, key) do
+    {_, map} =
+      Map.get_and_update(map, key, fn cycles ->
+        {cycles, [cycle | cycles]}
+      end)
+
+    map
+  end
+
   def change_set(%Cycle{} = cycle, attrs \\ %{}) do
     Cycle.changeset(cycle, attrs)
   end
@@ -75,7 +95,8 @@ defmodule ChessCrunch.Cycles do
     |> List.first()
   end
 
-  def next_drill(cycle_id) when is_binary(cycle_id), do: next_drill(String.to_integer(cycle_id))
+  def next_drill(cycle_id) when is_binary(cycle_id),
+    do: next_drill(String.to_integer(cycle_id))
 
   def next_drill(cycle_id) do
     case next_position(cycle_id) do
@@ -84,6 +105,24 @@ defmodule ChessCrunch.Cycles do
 
       position ->
         %Drill{position_id: position.id, position: position, cycle_id: cycle_id}
+    end
+  end
+
+  def complete_drill(drill, drill_params, cycle_id) do
+    create_drill(drill, drill_params)
+
+    case next_drill(cycle_id) do
+      nil ->
+        cycle_id
+        |> get_cycle()
+        |> complete_cycle()
+
+        # make next round cycle
+
+        :cycle_completed
+
+      drill ->
+        {:next_drill, drill}
     end
   end
 end

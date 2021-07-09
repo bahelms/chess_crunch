@@ -10,16 +10,8 @@ defmodule ChessCrunchWeb.CycleLive do
 
   @impl true
   def handle_event("save_answer", %{"drill" => drill_params}, %{assigns: assigns} = socket) do
-    Cycles.create_drill(assigns[:drill], drill_params)
-
-    case Cycles.next_drill(assigns[:cycle_id]) do
-      nil ->
-        assigns[:cycle_id]
-        |> Cycles.get_cycle()
-        |> Cycles.complete_cycle()
-
-        # make next round cycle
-
+    case Cycles.complete_drill(assigns[:drill], drill_params, assigns[:cycle_id]) do
+      :cycle_completed ->
         socket =
           socket
           |> put_flash(:info, "Cycle completed!")
@@ -27,7 +19,7 @@ defmodule ChessCrunchWeb.CycleLive do
 
         {:noreply, socket}
 
-      drill ->
+      {:next_drill, drill} ->
         {:noreply, assign(socket, drill: drill)}
     end
   end
