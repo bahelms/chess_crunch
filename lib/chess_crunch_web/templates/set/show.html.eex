@@ -3,17 +3,17 @@
     <%= @set.name %>
   </h1>
 
-  <div class="mt-8 mb-7 text-center" x-data="{}">
-    <%= link "Start Cycle", to: "#", class: "btn-blue mr-3", "x-on:click": "alert('It worked')" %>
-    <%= link "Add Position", to: Routes.position_path(@conn, :new, set_id: @set.id), class: "btn-green mr-3" %>
-  </div>
-
-  <div class="text-center">
-    <%= link "Delete Set", to: Routes.set_path(@conn, :delete, @set), method: :delete, class: "btn-red p-1 px-2" %>
+  <div class="mt-8 mb-7 flex flex-col text-center">
+    <div class="mb-8">
+      <%= link "Add Position", to: Routes.position_path(@conn, :new, set_id: @set.id), class: "btn-green" %>
+    </div>
+    <div>
+      <%= link "Delete Set", to: Routes.set_path(@conn, :delete, @set), method: :delete, class: "btn-red p-1 px-2" %>
+    </div>
   </div>
 </section>
 
-<div class="mt-4 mx-4">
+<div class="mx-4">
   <strong>
     <%= length(@set.positions) %> positions
   </strong>

@@ -50,6 +50,8 @@ defmodule ChessCrunch.Cycles do
     cycle
     |> change_set(%{completed_on: DateTime.utc_now()})
     |> Repo.update()
+
+    # make next round cycle if 85% of drills were correct
   end
 
   defp associate_sets(changeset, set_ids) do
@@ -116,8 +118,6 @@ defmodule ChessCrunch.Cycles do
         cycle_id
         |> get_cycle()
         |> complete_cycle()
-
-        # make next round cycle
 
         :cycle_completed
 

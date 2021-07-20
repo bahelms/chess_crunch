@@ -19,19 +19,7 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 * Dan Heisman study book of positions from played games to drill
 
 #### Dev Notes
-Cycles -> cycles_sets <- Sets
-Cycle: timestamps, completed_on, time_limit
-Drill: timestamps, answer, duration, cycle_id, position_id
-
 Running a cycle on a set
 * Click button
 * Redirected to start first position in first set
 * After all positions in all sets have been run, mark time on completed_on
-
-Running a drill
-* Shown image, to play, solution input
-* Timer starts
-* Input solution
-* Click done button
-* Timer stops
-* Start next position in set

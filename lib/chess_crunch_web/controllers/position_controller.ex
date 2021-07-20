@@ -17,7 +17,7 @@ defmodule ChessCrunchWeb.PositionController do
         |> redirect(to: Routes.set_path(conn, :show, position_params["set_id"]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "new.html", changeset: changeset)
+        render(conn, "new.html", changeset: changeset, set_id: position_params["set_id"])
     end
   end
 end

@@ -17,7 +17,7 @@ import {Socket} from "phoenix"
 import topbar from "topbar"
 import {LiveSocket} from "phoenix_live_view"
 import "alpinejs"
-import "chessboard-element"
+import {objToFen} from "chessboard-element"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
@@ -46,22 +46,6 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
-window.imageViewer = () => ({
-  imageUrl: "",
-
-  fileChosen(event) {
-    this.fileToDataUrl(event, (src) => this.imageUrl = src)
-  },
-
-  fileToDataUrl(event, callback) {
-    if (!event.target.files.length) return
-
-    const reader = new FileReader()
-    reader.readAsDataURL(event.target.files[0])
-    reader.onload = (e) => callback(e.target.result)
-  }
-})
-
 window.cycleIndex = () => ({
   modalOpen: false,
   cycle: null,
@@ -72,7 +56,6 @@ window.cycleIndex = () => ({
     this.modalOpen = (completed_on ? false : true)
   }
 })
-
 
 const zeroPad = (val) => {
   const valString = val + ""
@@ -87,3 +70,5 @@ window.secondsToTimeFormat = (secs) => {
   const remainingSecs = zeroPad(secs % 60)
   return `${mins}:${remainingSecs}`
 }
+
+window.objToFen = objToFen

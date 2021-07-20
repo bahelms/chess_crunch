@@ -1,4 +1,4 @@
-<%= form_for @changeset, @action, [multipart: true, "x-data": "{saving: false}"], fn f -> %>
+<%= form_for @changeset, @action, [multipart: true], fn f -> %>
   <%= if @changeset.action do %>
     <div class="alert alert-danger">
       <p>Oops, something went wrong! Please check the errors below.</p>
@@ -20,25 +20,13 @@
       <%= label f, :to_play, "Black", for: :black_to_play %>
     </div>
 
-    <div x-data="imageViewer()" class="">
-      <label class="btn px-5 mb-5 block">
-        Capture Position Image
-        <input type="file" id="position_image" name="position[image]" 
-          accept="image/*" capture="environment" class="hidden" @change="fileChosen" />
-      </label>
+    <chess-board x-data="{ fen: $el.fen() }" @change="fen = objToFen($event.detail.value)" spare-pieces drop-off-board="trash" position="start">
+      <%= hidden_input f, :fen, ":value": "fen" %>
+    </chess-board>
 
-      <template x-if="imageUrl">
-        <img :src="imageUrl" alt="" class="ml-auto mr-auto mb-5" />
-      </template>
-    </div>
-
-    <div  class="text-center">
+    <div class="text-center -mt-5 mb-7">
       <%= hidden_input f, :set_id, value: @set_id %>
-      <button
-          x-text="saving ? 'Saving...' : 'Save'"
-          @click="saving = true"
-          type="submit"
-          class="btn bg-blue-400 px-5">Save</button>
+      <%= submit "Save", class: "btn bg-blue-400 px-5" %>
     </div>
   </div>
 <% end %>

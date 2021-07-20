@@ -3,11 +3,11 @@
     <div>You have not created any sets.</div>
   </div>
   <div class="my-6 text-center">
-    <%= link "Create new drills set", to: Routes.set_path(@conn, :new), class: "btn-blue p-2" %>
+    <%= link "Create new position set", to: Routes.set_path(@conn, :new), class: "btn-blue p-2" %>
   </div>
 <% else %>
   <div class="my-6 text-center">
-    <%= link "Create new drills set", to: Routes.set_path(@conn, :new), class: "btn-blue p-2" %>
+    <%= link "Create new position set", to: Routes.set_path(@conn, :new), class: "btn-blue p-2" %>
   </div>
 
   <ul class="m-3 px-3 border rounded">
