@@ -19,8 +19,13 @@
   </strong>
 </div>
 
-<ul class="m-3 px-3 border rounded list-disc list-inside">
+<ul class="m-3 px-3 border rounded">
   <%= for position <- @set.positions do %>
-    <li class="border-b last:border-b-0 py-1"><%= position.name %></li>
+    <li class="border-b last:border-b-0 py-1">
+      <div class="flex justify-between">
+        <div><%= position.name %></div>
+        <div class="text-red-500"><%= solution_status(position.solution) %></div>
+      </div>
+    </li>
   <% end %>
 </ul>
