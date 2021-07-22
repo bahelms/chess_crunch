@@ -1,15 +1,26 @@
 defmodule ChessCrunchWeb.CycleLive do
   use ChessCrunchWeb, :live_view
-  alias ChessCrunch.{Cycles, ImageStorage}
+  alias ChessCrunch.Cycles
 
   @impl true
   def mount(%{"id" => cycle_id}, _session, socket) do
-    drill = Cycles.next_drill(cycle_id)
-    {:ok, assign(socket, drill: drill, cycle_id: String.to_integer(cycle_id))}
+    {:ok,
+     assign(socket,
+       drill: Cycles.next_drill(cycle_id),
+       cycle_id: String.to_integer(cycle_id),
+       answer: nil,
+       duration: nil
+     )}
   end
 
   @impl true
-  def handle_event("save_answer", %{"drill" => drill_params}, %{assigns: assigns} = socket) do
+  def handle_event("save_answer", _, %{assigns: assigns} = socket) do
+    drill_params = %{
+      answer: assigns[:answer],
+      duration: assigns[:duration]
+    }
+
+    # TODO: refactor not to need cycle_id
     case Cycles.complete_drill(assigns[:drill], drill_params, assigns[:cycle_id]) do
       :cycle_completed ->
         socket =
@@ -24,6 +35,25 @@ defmodule ChessCrunchWeb.CycleLive do
     end
   end
 
-  defp format_to_play(%{to_play: "white"}), do: "White"
+  @impl true
+  def handle_event(
+        "board_update",
+        %{"pgn" => pgn, "duration" => duration},
+        %{assigns: _assigns} = socket
+      ) do
+    moves =
+      pgn
+      |> String.split("\n\n")
+      |> List.last()
+
+    # if assigns[:drill].position.solution do
+    #   # check if moves are correct
+    #   #   If incorrect, save answer and end drill
+    # end
+
+    {:noreply, assign(socket, %{answer: moves, duration: duration})}
+  end
+
+  defp format_to_play(%{to_play: "w"}), do: "White"
   defp format_to_play(_), do: "Black"
 end

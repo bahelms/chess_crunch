@@ -14,9 +14,9 @@
 
     <div class="text-center mb-5">
       <strong>To Play:</strong>
-      <%= radio_button f, :to_play, :white, id: :white_to_play, class: "ml-2" %>
+      <%= radio_button f, :to_play, :w, id: :white_to_play, class: "ml-2" %>
       <%= label f, :to_play, "White", for: :white_to_play %>
-      <%= radio_button f, :to_play, :black, id: :black_to_play, class: "ml-2" %>
+      <%= radio_button f, :to_play, :b, id: :black_to_play, class: "ml-2" %>
       <%= label f, :to_play, "Black", for: :black_to_play %>
     </div>
 

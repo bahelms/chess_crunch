@@ -1,24 +1,22 @@
-<div x-data="{ seconds: 0 }" x-init="setInterval(() => { seconds++ }, 1000)">
+<div x-data="{ seconds: 0, answer: '' }" x-init="setInterval(() => { seconds++ }, 1000)">
   <%= form_for :drill, "#", [phx_submit: :save_answer, class: "text-center"], fn f -> %>
-    <%= img_tag ImageStorage.image_url(@drill.position.image_filename), class: "w-4/5 h-96 m-auto" %>
-
-    <div class="my-2">
-      <strong>To Play: <%= format_to_play(@drill.position) %></strong> 
+    <div class="flex justify-evenly my-4">
+      <div><strong>To Play: </strong><%= format_to_play(@drill.position) %></div>
+      <div x-text="secondsToTimeFormat(seconds)" class=""></div>
     </div>
 
-    <div x-text="secondsToTimeFormat(seconds)"></div>
+    <chess-board
+      id="board"
+      phx-hook="chessboard"
+      position="<%= @drill.position.fen %>"
+      to-play="<%= @drill.position.to_play %>"
+      :duration="seconds"
+      draggable-pieces>
+    </chess-board>
 
-    <div class="mt-3">
-      <%= label do %>
-        Answer:
-        <%= text_input f, :answer, placeholder: "Qb4 h6 Bxa2 Nd7 ...", class: "p-1 border rounded" %>
-      <% end %>
-    </div>
-
-    <%= hidden_input f, :duration, [":value": "seconds"] %>
-
-    <div class="mt-4">
-      <%= submit "Save and Go To Next", "x-on:click": "seconds = 0", class: "btn bg-green-400 px-5 py-2" %>
-    </div>
+    <%= if !@drill.position.solution do %>
+      <p class="-mt-4 mb-2">This position has no solution</p>
+      <%= submit "Save and Go To Next", "@click": "seconds = 0", class: "btn bg-green-400 px-5 py-2" %>
+    <% end %>
   <% end %>
 </div>
