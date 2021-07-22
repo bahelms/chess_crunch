@@ -4,7 +4,7 @@
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
     </svg>
   </button>
-  <nav class="absolute top-14 left-0 shadow-md rounded-lg flex-col pt-2 pr-2 bg-gray-200 w-full md:flex md:rounded-none md:shadow-none md:relative md:top-0 md:space-x-6 md:w-auto md:bg-transparent md:flex-row md:pt-0"
+  <nav class="absolute top-14 left-0 shadow-md rounded-lg flex-col pt-2 pr-2 bg-gray-200 w-full md:flex md:rounded-none md:shadow-none md:relative md:top-0 md:space-x-6 md:w-auto md:bg-transparent md:flex-row md:pt-0 z-10"
     :class="{'flex': mobileMenuOpen, 'hidden': !mobileMenuOpen}"
     @click.away="mobileMenuOpen = false">
     <%= link "Drills", to: Routes.cycle_path(@conn, :index), class: "pl-3 py-1" %>

@@ -4,6 +4,7 @@ defmodule ChessCrunch.Sets.Set do
 
   schema "sets" do
     field :name, :string
+
     has_many :positions, ChessCrunch.Sets.Position
     belongs_to :user, ChessCrunch.Accounts.User, type: :binary_id
 
