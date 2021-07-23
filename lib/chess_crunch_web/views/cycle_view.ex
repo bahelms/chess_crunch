@@ -6,6 +6,14 @@ defmodule ChessCrunchWeb.CycleView do
   def set_options(sets), do: Enum.map(sets, &[key: &1.name, value: &1.id])
 
   def status(%Cycle{completed_on: nil}), do: "In Progress"
+
+  def status(cycle) do
+    case Cycles.needs_solution?(cycle) do
+      true -> "Needs Solutions"
+      false -> "Completed"
+    end
+  end
+
   def status(_), do: "Completed"
 
   def drills_completed(cycle) do
@@ -19,4 +27,10 @@ defmodule ChessCrunchWeb.CycleView do
   def format_time_limit(25), do: "25 secs"
   def format_time_limit(15), do: "15 secs"
   def format_time_limit(10), do: "10 secs"
+
+  def card_color(cycle) do
+    if Cycles.needs_solution?(cycle) do
+      "red"
+    end
+  end
 end

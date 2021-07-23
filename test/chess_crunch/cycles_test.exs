@@ -278,6 +278,7 @@ defmodule ChessCrunch.CyclesTest do
       assert Cycles.get_cycle(cycle.id).completed_on
     end
 
+    @tag :skip
     test "creates a new cycle for the next round", %{cycle: cycle} do
       drill = Cycles.next_drill(cycle.id)
       params = %{"answer" => "garbage", "duration" => "20"}
@@ -313,6 +314,46 @@ defmodule ChessCrunch.CyclesTest do
 
       assert length(completed) == 2
       assert length(in_progress) == 0
+    end
+  end
+
+  describe "list_cycles_grouped_by_status/1 with sets" do
+    setup [:create_cycle_with_sets]
+
+    test "preloads drills and their positions", %{cycle: cycle, user: user} do
+      pos = Repo.get_by!(Sets.Position, name: "201")
+      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos.id})
+      %{in_progress: in_progress} = Cycles.list_cycles_grouped_by_status(user)
+
+      [drill | _] = List.first(in_progress).drills
+      assert drill.position.name == "201"
+    end
+  end
+
+  describe "needs_solution?/1" do
+    test "returns true when a position does not have a solution" do
+      assert %{
+               drills: [
+                 %{position: %{solution: "hey"}},
+                 %{position: %{solution: nil}},
+                 %{position: %{solution: "there"}}
+               ]
+             }
+             |> Cycles.needs_solution?()
+    end
+
+    test "returns false when all positions have solutions" do
+      refute %{
+               drills: [
+                 %{position: %{solution: "hey"}},
+                 %{position: %{solution: "there"}}
+               ]
+             }
+             |> Cycles.needs_solution?()
+    end
+
+    test "returns false with no drills" do
+      refute Cycles.needs_solution?(%{drills: []})
     end
   end
 end

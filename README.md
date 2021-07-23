@@ -23,3 +23,14 @@ Running a cycle on a set
 * Click button
 * Redirected to start first position in first set
 * After all positions in all sets have been run, mark time on completed_on
+
+Cycle states:
+* in progress needing solutions
+* in progress with all solutions
+* round 1 complete, needing solutions
+    next round can't start
+* round N complete, under accuracy threshold
+    next round can't start
+* round N complete
+* last round complete
+    no next round

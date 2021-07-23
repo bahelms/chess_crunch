@@ -12,9 +12,9 @@
     </div>
 
     <%= if !Enum.empty?(@in_progress_cycles) do %>
-      <ul class="m-3 px-3 border rounded">
+      <ul class="m-3 border rounded">
         <%= for cycle <- @in_progress_cycles do %>
-          <li @click="selectCycle(<%= cycle.id %>, <%= cycle.completed_on %>)" class="border-b last:border-b-0 py-1">
+          <li @click="selectCycle(<%= cycle.id %>, <%= cycle.completed_on %>)" class="border-b last:border-b-0 py-1 px-3">
             <div>
               <div class="flex justify-between">
                 <strong><%= cycle.name %></strong>
@@ -45,9 +45,10 @@
     <% end %>
 
     <%= if !Enum.empty?(@completed_cycles) do %>
-      <ul class="m-3 px-3 border rounded">
+      <ul class="m-3 border rounded">
         <%= for cycle <- @completed_cycles do %>
-          <li @click="selectCycle(<%= cycle.id %>, <%= cycle.completed_on %>)" class="border-b last:border-b-0 py-1">
+          <li @click="selectCycle(<%= cycle.id %>, <%= cycle.completed_on %>)"
+            class="border-b last:border-b-0 px-3 py-1 bg-<%= card_color(cycle) %>-200">
             <div>
               <div class="flex justify-between">
                 <strong><%= cycle.name %></strong>

@@ -15,6 +15,7 @@ defmodule ChessCrunch.Cycles do
 
   def list_cycles_grouped_by_status(user) do
     list_cycles(user)
+    |> Repo.preload(drills: :position)
     |> Enum.reduce(%{completed: [], in_progress: []}, fn
       %{completed_on: nil} = cycle, map ->
         update_map_list(map, cycle, :in_progress)
@@ -124,5 +125,9 @@ defmodule ChessCrunch.Cycles do
       drill ->
         {:next_drill, drill}
     end
+  end
+
+  def needs_solution?(%{drills: drills}) do
+    Enum.any?(drills, &is_nil(&1.position.solution))
   end
 end
