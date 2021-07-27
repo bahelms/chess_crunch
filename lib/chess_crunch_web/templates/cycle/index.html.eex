@@ -14,25 +14,22 @@
     <%= if !Enum.empty?(@in_progress_cycles) do %>
       <ul class="m-3 border rounded">
         <%= for cycle <- @in_progress_cycles do %>
-          <li @click="selectCycle(<%= cycle.id %>, <%= cycle.completed_on %>)" class="border-b last:border-b-0 py-1 px-3">
+          <li class="border-b last:border-b-0 py-1 px-3">
             <div>
               <div class="flex justify-between">
                 <strong><%= cycle.name %></strong>
                 <div class="text-red-300"><%= status(cycle) %></div>
               </div>
-              <div>
-                Completed:
-                <%= drills_completed(cycle) %>
-              </div>
 
-              <div>
-                Time Limit:
-                <%= format_time_limit(cycle.time_limit) %>
-              </div>
-
-              <div>
-                Round:
-                <%= cycle.round %>
+              <div class="flex justify-between items-center">
+                <div>
+                  <div>Completed: <%= drills_completed(cycle) %></div>
+                  <div>Time Limit: <%= format_time_limit(cycle.time_limit) %></div>
+                  <div>Round: <%= Cycles.current_round(cycle.rounds).number %></div>
+                </div>
+                <div>
+                  <%= link "Start", to: "#", class: "btn-green p-2" %>
+                </div>
               </div>
             </div>
           </li>
@@ -47,44 +44,17 @@
     <%= if !Enum.empty?(@completed_cycles) do %>
       <ul class="m-3 border rounded">
         <%= for cycle <- @completed_cycles do %>
-          <li @click="selectCycle(<%= cycle.id %>, <%= cycle.completed_on %>)"
-            class="border-b last:border-b-0 px-3 py-1 bg-<%= card_color(cycle) %>-200">
+          <li class="border-b last:border-b-0 px-3 py-1 bg-<%= card_color(cycle) %>-200">
             <div>
               <div class="flex justify-between">
                 <strong><%= cycle.name %></strong>
                 <div class="text-red-300"><%= status(cycle) %></div>
               </div>
-              <div>
-                Completed:
-                <%= drills_completed(cycle) %>
-              </div>
-
-              <div>
-                Time Limit:
-                <%= format_time_limit(cycle.time_limit) %>
-              </div>
-
-              <div>
-                Round:
-                <%= cycle.round %>
-              </div>
+              <div>Completed: <%= drills_completed(cycle) %></div>
             </div>
           </li>
         <% end %>
       </ul>
     <% end %>
-
-    <div class="fixed z-1 top-0 left-0 w-full h-full bg-black bg-opacity-30"
-        :class="modalOpen ? 'block' : 'hidden'">
-      <div class="bg-white mx-auto mt-40 px-16 pt-10 pb-12 w-9/12 border rounded-md">
-        <div class="flex flex-col">
-          <p class="mb-6 text-center text-lg">Start the cycle?</p>
-          <div class="text-center flex justify-between">
-            <a :href="`cycles/${cycle}`" class="btn-green p-2">Let's go!</a>
-            <button @click="modalOpen = false" class="btn-red p-2">Cancel</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </section>
 <% end %>
