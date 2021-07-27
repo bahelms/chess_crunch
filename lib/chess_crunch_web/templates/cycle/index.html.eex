@@ -27,9 +27,7 @@
                   <div>Time Limit: <%= format_time_limit(cycle.time_limit) %></div>
                   <div>Round: <%= Cycles.current_round(cycle.rounds).number %></div>
                 </div>
-                <div>
-                  <%= link "Start", to: "#", class: "btn-green p-2" %>
-                </div>
+                <div><%= link "Start", to: Routes.live_path(@conn, ChessCrunchWeb.CycleLive, cycle.id), class: "btn-green p-2" %></div>
               </div>
             </div>
           </li>

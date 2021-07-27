@@ -1,5 +1,5 @@
 <div x-data="{ seconds: 0, answer: '' }" x-init="setInterval(() => { seconds++ }, 1000)">
-  <%= form_for :drill, "#", [phx_submit: :save_answer, class: "text-center"], fn f -> %>
+  <%= form_for :drill, "#", [phx_submit: :save_answer, class: "text-center"], fn _f -> %>
     <div class="flex justify-evenly my-4">
       <div><strong>To Play: </strong><%= format_to_play(@drill.position) %></div>
       <div x-text="secondsToTimeFormat(seconds)" class=""></div>

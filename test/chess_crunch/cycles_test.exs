@@ -376,5 +376,17 @@ defmodule ChessCrunch.CyclesTest do
 
       assert round.id == 4
     end
+
+    test "returns nil when all rounds are complete" do
+      round =
+        [
+          %{id: 1, number: 1, completed_on: DateTime.utc_now()},
+          %{id: 2, number: 2, completed_on: DateTime.utc_now()},
+          %{id: 3, number: 3, completed_on: DateTime.utc_now()}
+        ]
+        |> Cycles.current_round()
+
+      refute round
+    end
   end
 end

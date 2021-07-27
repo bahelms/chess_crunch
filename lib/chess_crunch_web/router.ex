@@ -37,7 +37,7 @@ defmodule ChessCrunchWeb.Router do
 
     get "/", Redirector, to: "/cycles"
     resources "/cycles", CycleController, only: [:index, :create, :new]
-    live "/cycles/:id", CycleLive
+    live "/start_cycle/:id", CycleLive
     resources "/sets", SetController, only: [:index, :new, :create, :show, :delete]
     resources "/positions", PositionController, only: [:new, :create, :delete]
     get "/users/settings", UserSettingsController, :edit

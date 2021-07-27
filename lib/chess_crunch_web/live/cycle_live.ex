@@ -4,10 +4,12 @@ defmodule ChessCrunchWeb.CycleLive do
 
   @impl true
   def mount(%{"id" => cycle_id}, _session, socket) do
+    round_id = Cycles.current_round_for_cycle(cycle_id).id
+
     {:ok,
      assign(socket,
-       drill: Cycles.next_drill(cycle_id),
-       cycle_id: String.to_integer(cycle_id),
+       drill: Cycles.next_drill(round_id),
+       round_id: round_id,
        answer: nil,
        duration: nil
      )}
@@ -21,11 +23,11 @@ defmodule ChessCrunchWeb.CycleLive do
     }
 
     # TODO: refactor not to need cycle_id
-    case Cycles.complete_drill(assigns[:drill], drill_params, assigns[:cycle_id]) do
-      :cycle_completed ->
+    case Cycles.complete_drill(assigns[:drill], drill_params, assigns[:round_id]) do
+      :round_completed ->
         socket =
           socket
-          |> put_flash(:info, "Cycle completed!")
+          |> put_flash(:info, "Round completed!")
           |> redirect(to: Routes.cycle_path(socket, :index))
 
         {:noreply, socket}

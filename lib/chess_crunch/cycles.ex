@@ -153,4 +153,13 @@ defmodule ChessCrunch.Cycles do
   end
 
   def current_round(rounds), do: Enum.find(rounds, &(!&1.completed_on))
+
+  def current_round_for_cycle(cycle_id) do
+    cycle =
+      cycle_id
+      |> get_cycle()
+      |> Repo.preload(:rounds)
+
+    current_round(cycle.rounds)
+  end
 end
