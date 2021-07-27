@@ -94,16 +94,6 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
-window.cycleIndex = () => ({
-  modalOpen: false,
-  cycle: null,
-
-  selectCycle(cycle_id, completed_on) {
-    this.cycle = cycle_id
-    this.modalOpen = (completed_on ? false : true)
-  }
-})
-
 const zeroPad = (val) => {
   const valString = val + ""
   if (valString.length == 2) {

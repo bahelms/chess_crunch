@@ -69,14 +69,16 @@ defmodule ChessCrunch.CyclesTest do
   defp create_cycle_with_sets(%{valid_attrs: attrs} = context) do
     %{sets: sets} = create_sets(attrs["user_id"])
     cycle = create_cycle(attrs, Enum.map(sets, & &1.id))
-    Map.merge(context, %{cycle: cycle, sets: sets})
+    [round | _] = Repo.preload(cycle, :rounds).rounds
+    Map.merge(context, %{cycle: cycle, round: round, sets: sets})
   end
 
   defp no_more_drills(%{valid_attrs: attrs}) do
     {:ok, set} = Sets.create_set(%{name: "set1", user_id: attrs["user_id"]})
     Sets.create_position(%{name: "1", to_play: "black", set_id: set.id})
     cycle = create_cycle(attrs, [set.id])
-    %{cycle: cycle}
+    round = Cycles.create_round(%{cycle_id: cycle.id, number: 1})
+    %{round: round}
   end
 
   describe "create_cycle/1" do
@@ -87,13 +89,15 @@ defmodule ChessCrunch.CyclesTest do
       assert cycle.name == "Test"
     end
 
-    test "round is started at 1", %{valid_attrs: attrs} do
-      {:ok, cycle} = Cycles.create_cycle(attrs)
-      assert cycle.round == 1
-    end
-
     test "given set IDs are associated", %{cycle: cycle} do
       assert length(Repo.preload(cycle, :sets).sets) == 2
+    end
+
+    test "the first round is created", %{cycle: cycle} do
+      [round | _] = rounds = Repo.preload(cycle, :rounds).rounds
+      assert length(rounds) == 1
+      assert round.number == 1
+      assert round.cycle_id == cycle.id
     end
   end
 
@@ -111,10 +115,11 @@ defmodule ChessCrunch.CyclesTest do
     test "returns number of completed drills", %{valid_attrs: attrs} do
       pos1 = Repo.get_by!(Sets.Position, name: "100")
       {:ok, cycle} = Cycles.create_cycle(attrs)
+      [round | _] = Repo.preload(cycle, :rounds).rounds
 
-      Cycles.create_drill(%{position_id: pos1.id, cycle_id: cycle.id})
-      Cycles.create_drill(%{position_id: pos1.id, cycle_id: cycle.id})
-      Cycles.create_drill(%{position_id: pos1.id, cycle_id: cycle.id})
+      Cycles.create_drill(%{position_id: pos1.id, round_id: round.id})
+      Cycles.create_drill(%{position_id: pos1.id, round_id: round.id})
+      Cycles.create_drill(%{position_id: pos1.id, round_id: round.id})
 
       assert Cycles.total_drills(cycle) == 3
     end
@@ -123,8 +128,8 @@ defmodule ChessCrunch.CyclesTest do
   describe "next_position/1 with no drills" do
     setup [:create_cycle_with_sets]
 
-    test "returns the first ordered position that doesn't have a drill", %{cycle: cycle} do
-      position = Cycles.next_position(cycle.id)
+    test "returns the first ordered position that doesn't have a drill", %{round: round} do
+      position = Cycles.next_position(round.id)
       assert position.name == "100"
     end
   end
@@ -132,11 +137,11 @@ defmodule ChessCrunch.CyclesTest do
   describe "next_position/1 with first position having a drill" do
     setup [:create_cycle_with_sets]
 
-    test "returns the first ordered position that doesn't have a drill", %{cycle: cycle} do
+    test "returns the first ordered position that doesn't have a drill", %{round: round} do
       pos1 = Repo.get_by!(Sets.Position, name: "100")
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos1.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos1.id})
 
-      position = Cycles.next_position(cycle.id)
+      position = Cycles.next_position(round.id)
       assert position.name == "101"
     end
   end
@@ -144,11 +149,11 @@ defmodule ChessCrunch.CyclesTest do
   describe "next_position/1 with third position having a drill" do
     setup [:create_cycle_with_sets]
 
-    test "returns the first ordered position that doesn't have a drill", %{cycle: cycle} do
+    test "returns the first ordered position that doesn't have a drill", %{round: round} do
       pos3 = Repo.get_by!(Sets.Position, name: "102")
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos3.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos3.id})
 
-      position = Cycles.next_position(cycle.id)
+      position = Cycles.next_position(round.id)
       assert position.name == "100"
     end
   end
@@ -156,13 +161,13 @@ defmodule ChessCrunch.CyclesTest do
   describe "next_position/1 with first two positions having a drill" do
     setup [:create_cycle_with_sets]
 
-    test "returns the first ordered position that doesn't have a drill", %{cycle: cycle} do
+    test "returns the first ordered position that doesn't have a drill", %{round: round} do
       pos1 = Repo.get_by!(Sets.Position, name: "100")
       pos2 = Repo.get_by!(Sets.Position, name: "101")
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos1.id})
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos2.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos1.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos2.id})
 
-      position = Cycles.next_position(cycle.id)
+      position = Cycles.next_position(round.id)
       assert position.name == "102"
     end
   end
@@ -170,19 +175,19 @@ defmodule ChessCrunch.CyclesTest do
   describe "next_position/1 with all positions having drills" do
     setup [:create_cycle_with_sets]
 
-    test "returns nil", %{cycle: cycle} do
+    test "returns nil", %{round: round} do
       pos1 = Repo.get_by!(Sets.Position, name: "100")
       pos2 = Repo.get_by!(Sets.Position, name: "101")
       pos3 = Repo.get_by!(Sets.Position, name: "102")
       pos4 = Repo.get_by!(Sets.Position, name: "200")
       pos5 = Repo.get_by!(Sets.Position, name: "201")
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos1.id})
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos2.id})
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos3.id})
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos4.id})
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos5.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos1.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos2.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos3.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos4.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos5.id})
 
-      refute Cycles.next_position(cycle.id)
+      refute Cycles.next_position(round.id)
     end
   end
 
@@ -190,20 +195,21 @@ defmodule ChessCrunch.CyclesTest do
     setup [:create_cycle_with_sets]
 
     test "returns the first ordered position that doesn't have a drill", %{
-      cycle: cycle1,
+      round: round1,
       sets: sets,
       valid_attrs: attrs
     } do
       cycle2 = create_cycle(attrs, Enum.map(sets, & &1.id))
+      round2 = Cycles.create_round(%{cycle_id: cycle2.id, number: 1})
       pos1 = Repo.get_by!(Sets.Position, name: "100")
       pos2 = Repo.get_by!(Sets.Position, name: "101")
       pos3 = Repo.get_by!(Sets.Position, name: "102")
 
-      Cycles.create_drill(%{cycle_id: cycle1.id, position_id: pos1.id})
-      Cycles.create_drill(%{cycle_id: cycle1.id, position_id: pos2.id})
-      Cycles.create_drill(%{cycle_id: cycle1.id, position_id: pos3.id})
+      Cycles.create_drill(%{round_id: round1.id, position_id: pos1.id})
+      Cycles.create_drill(%{round_id: round1.id, position_id: pos2.id})
+      Cycles.create_drill(%{round_id: round1.id, position_id: pos3.id})
 
-      next_pos = Cycles.next_position(cycle2.id)
+      next_pos = Cycles.next_position(round2.id)
       assert next_pos.name == "100"
     end
   end
@@ -211,58 +217,58 @@ defmodule ChessCrunch.CyclesTest do
   describe "next_drill/1" do
     setup [:create_cycle_with_sets]
 
-    test "returns a preloaded drill for the next position", %{cycle: cycle} do
+    test "returns a preloaded drill for the next position", %{round: round} do
       pos1 = Repo.get_by!(Sets.Position, name: "100")
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos1.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos1.id})
 
-      drill = Cycles.next_drill(cycle.id)
+      drill = Cycles.next_drill(round.id)
       pos2 = Repo.get_by!(Sets.Position, name: "101")
       assert drill.position_id == pos2.id
       assert drill.position.name == "101"
-      assert drill.cycle_id == cycle.id
+      assert drill.round_id == round.id
     end
 
-    test "handles a string cycle_id", %{cycle: cycle} do
-      drill = Cycles.next_drill(Integer.to_string(cycle.id))
-      assert drill.cycle_id == cycle.id
+    test "handles a string round_id", %{round: round} do
+      drill = Cycles.next_drill(Integer.to_string(round.id))
+      assert drill.round_id == round.id
     end
   end
 
   describe "next_drill/1 when there is no next position" do
     setup [:create_cycle_with_sets]
 
-    test "returns nil", %{cycle: cycle} do
+    test "returns nil", %{round: round} do
       pos1 = Repo.get_by!(Sets.Position, name: "100")
       pos2 = Repo.get_by!(Sets.Position, name: "101")
       pos3 = Repo.get_by!(Sets.Position, name: "102")
       pos4 = Repo.get_by!(Sets.Position, name: "200")
       pos5 = Repo.get_by!(Sets.Position, name: "201")
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos1.id})
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos2.id})
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos3.id})
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos4.id})
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos5.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos1.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos2.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos3.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos4.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos5.id})
 
-      refute Cycles.next_drill(cycle.id)
+      refute Cycles.next_drill(round.id)
     end
   end
 
   describe "complete_drill/3" do
     setup [:create_cycle_with_sets]
 
-    test "creates a drill record", %{cycle: cycle} do
-      drill = Cycles.next_drill(cycle.id)
+    test "creates a drill record", %{round: round} do
+      drill = Cycles.next_drill(round.id)
       params = %{"answer" => "garbage", "duration" => "20"}
 
-      Cycles.complete_drill(drill, params, cycle.id)
-      assert Cycles.total_drills(cycle) == 1
+      Cycles.complete_drill(drill, params, round.id)
+      assert Cycles.total_drills(round) == 1
     end
 
-    test "returns the next drill if there is one", %{cycle: cycle} do
-      drill = Cycles.next_drill(cycle.id)
+    test "returns the next drill if there is one", %{round: round} do
+      drill = Cycles.next_drill(round.id)
       params = %{"answer" => "garbage", "duration" => "20"}
 
-      assert {:next_drill, drill} = Cycles.complete_drill(drill, params, cycle.id)
+      assert {:next_drill, drill} = Cycles.complete_drill(drill, params, round.id)
       assert Repo.preload(drill, :position).position.name == "101"
     end
   end
@@ -270,12 +276,12 @@ defmodule ChessCrunch.CyclesTest do
   describe "complete_drill/3 with no more drills" do
     setup [:no_more_drills]
 
-    test "completes the cycle", %{cycle: cycle} do
-      drill = Cycles.next_drill(cycle.id)
+    test "completes the round", %{round: round} do
+      drill = Cycles.next_drill(round.id)
       params = %{"answer" => "garbage", "duration" => "20"}
 
-      assert :cycle_completed = Cycles.complete_drill(drill, params, cycle.id)
-      assert Cycles.get_cycle(cycle.id).completed_on
+      assert :round_completed = Cycles.complete_drill(drill, params, round.id)
+      assert Cycles.get_round(round.id).completed_on
     end
 
     @tag :skip
@@ -320,9 +326,9 @@ defmodule ChessCrunch.CyclesTest do
   describe "list_cycles_grouped_by_status/1 with sets" do
     setup [:create_cycle_with_sets]
 
-    test "preloads drills and their positions", %{cycle: cycle, user: user} do
+    test "preloads drills and their positions", %{round: round, user: user} do
       pos = Repo.get_by!(Sets.Position, name: "201")
-      Cycles.create_drill(%{cycle_id: cycle.id, position_id: pos.id})
+      Cycles.create_drill(%{round_id: round.id, position_id: pos.id})
       %{in_progress: in_progress} = Cycles.list_cycles_grouped_by_status(user)
 
       [drill | _] = List.first(in_progress).drills
@@ -354,6 +360,21 @@ defmodule ChessCrunch.CyclesTest do
 
     test "returns false with no drills" do
       refute Cycles.needs_solution?(%{drills: []})
+    end
+  end
+
+  describe "current_round/1" do
+    test "returns the latest incomplete round" do
+      round =
+        [
+          %{id: 1, number: 1, completed_on: DateTime.utc_now()},
+          %{id: 2, number: 2, completed_on: DateTime.utc_now()},
+          %{id: 3, number: 3, completed_on: DateTime.utc_now()},
+          %{id: 4, number: 3, completed_on: nil}
+        ]
+        |> Cycles.current_round()
+
+      assert round.id == 4
     end
   end
 end

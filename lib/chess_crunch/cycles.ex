@@ -5,7 +5,7 @@ defmodule ChessCrunch.Cycles do
 
   import Ecto.Query, warn: false
   alias ChessCrunch.{Repo, Sets}
-  alias ChessCrunch.Cycles.{Cycle, Drill}
+  alias ChessCrunch.Cycles.{Cycle, Round, Drill}
 
   def list_cycles(user) do
     Cycle
@@ -34,21 +34,35 @@ defmodule ChessCrunch.Cycles do
     map
   end
 
-  def change_set(%Cycle{} = cycle, attrs \\ %{}) do
+  def change_set(cycle, attrs \\ %{})
+
+  def change_set(%Cycle{} = cycle, attrs) do
     Cycle.changeset(cycle, attrs)
   end
 
-  def create_cycle(attrs \\ %{}) do
-    %Cycle{round: 1}
+  def change_set(%Round{} = round, attrs) do
+    Round.changeset(round, attrs)
+  end
+
+  def create_cycle(%{"rounds" => _} = attrs) do
+    %Cycle{}
     |> Cycle.changeset(attrs)
     |> associate_sets(attrs["set_ids"])
     |> Repo.insert()
   end
 
+  def create_cycle(attrs) do
+    attrs
+    |> Map.put("rounds", [%{number: 1}])
+    |> create_cycle()
+  end
+
   def get_cycle(id), do: Repo.get!(Cycle, id)
 
-  def complete_cycle(cycle) do
-    cycle
+  def get_round(id), do: Repo.get!(Round, id)
+
+  def complete_round(round) do
+    round
     |> change_set(%{completed_on: DateTime.utc_now()})
     |> Repo.update()
 
@@ -65,6 +79,12 @@ defmodule ChessCrunch.Cycles do
     |> Repo.preload(sets: :positions)
     |> Map.get(:sets)
     |> Enum.reduce(0, fn set, sum -> sum + length(set.positions) end)
+  end
+
+  def create_round(attrs) do
+    %Round{}
+    |> Round.changeset(attrs)
+    |> Repo.insert!()
   end
 
   def create_drill(attrs) do
@@ -84,43 +104,44 @@ defmodule ChessCrunch.Cycles do
     |> length()
   end
 
-  def next_position(cycle_id) do
-    from(c in Cycle,
+  def next_position(round_id) do
+    from(r in Round,
+      join: c in assoc(r, :cycle),
       join: s in assoc(c, :sets),
       join: p in assoc(s, :positions),
-      left_join: d in Drill,
-      on: d.position_id == p.id and d.cycle_id == ^cycle_id,
+      left_join: d in assoc(r, :drills),
+      on: d.position_id == p.id and d.round_id == ^round_id,
       select: p,
-      where: c.id == ^cycle_id and is_nil(d.id),
+      where: r.id == ^round_id and is_nil(d.id),
       order_by: p.inserted_at
     )
     |> Repo.all()
     |> List.first()
   end
 
-  def next_drill(cycle_id) when is_binary(cycle_id),
-    do: next_drill(String.to_integer(cycle_id))
+  def next_drill(round_id) when is_binary(round_id),
+    do: next_drill(String.to_integer(round_id))
 
-  def next_drill(cycle_id) do
-    case next_position(cycle_id) do
+  def next_drill(round_id) do
+    case next_position(round_id) do
       nil ->
         nil
 
       position ->
-        %Drill{position_id: position.id, position: position, cycle_id: cycle_id}
+        %Drill{position_id: position.id, position: position, round_id: round_id}
     end
   end
 
-  def complete_drill(drill, drill_params, cycle_id) do
+  def complete_drill(drill, drill_params, round_id) do
     create_drill(drill, drill_params)
 
-    case next_drill(cycle_id) do
+    case next_drill(round_id) do
       nil ->
-        cycle_id
-        |> get_cycle()
-        |> complete_cycle()
+        round_id
+        |> get_round()
+        |> complete_round()
 
-        :cycle_completed
+        :round_completed
 
       drill ->
         {:next_drill, drill}
@@ -130,4 +151,6 @@ defmodule ChessCrunch.Cycles do
   def needs_solution?(%{drills: drills}) do
     Enum.any?(drills, &is_nil(&1.position.solution))
   end
+
+  def current_round(rounds), do: Enum.find(rounds, &(!&1.completed_on))
 end

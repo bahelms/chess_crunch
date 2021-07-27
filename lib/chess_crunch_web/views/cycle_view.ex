@@ -14,8 +14,6 @@ defmodule ChessCrunchWeb.CycleView do
     end
   end
 
-  def status(_), do: "Completed"
-
   def drills_completed(cycle) do
     "#{Cycles.total_drills(cycle)}/#{Cycles.total_positions(cycle)}"
   end

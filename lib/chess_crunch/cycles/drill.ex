@@ -8,7 +8,7 @@ defmodule ChessCrunch.Cycles.Drill do
     field :answer, :string
     # in seconds
     field :duration, :integer
-    belongs_to :cycle, ChessCrunch.Cycles.Cycle
+    belongs_to :round, ChessCrunch.Cycles.Round
     belongs_to :position, ChessCrunch.Sets.Position, type: :binary_id
     timestamps()
   end
@@ -16,7 +16,7 @@ defmodule ChessCrunch.Cycles.Drill do
   @doc false
   def changeset(drill, attrs) do
     drill
-    |> cast(attrs, [:cycle_id, :position_id, :answer, :duration])
-    |> validate_required([:cycle_id, :position_id])
+    |> cast(attrs, [:round_id, :position_id, :answer, :duration])
+    |> validate_required([:round_id, :position_id])
   end
 end

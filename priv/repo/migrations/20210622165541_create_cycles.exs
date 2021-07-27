@@ -6,10 +6,11 @@ defmodule ChessCrunch.Repo.Migrations.CreateCycles do
       add :name, :text, null: false
       add :completed_on, :utc_datetime
       add :time_limit, :integer, null: false
-      add :round, :integer, null: false
       add :user_id, references("users", type: :binary_id)
 
       timestamps()
     end
+
+    create index(:cycles, [:user_id])
   end
 end

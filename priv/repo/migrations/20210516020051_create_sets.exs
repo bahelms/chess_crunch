@@ -7,5 +7,7 @@ defmodule ChessCrunch.Repo.Migrations.CreateSets do
       add :user_id, references("users", type: :binary_id)
       timestamps()
     end
+
+    create index(:sets, [:user_id])
   end
 end

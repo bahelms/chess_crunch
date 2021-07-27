@@ -13,5 +13,7 @@ defmodule ChessCrunch.Repo.Migrations.CreatePositions do
       add :set_id, references(:sets, on_delete: :nilify_all)
       timestamps()
     end
+
+    create index(:positions, [:set_id])
   end
 end

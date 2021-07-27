@@ -1,4 +1,4 @@
-defmodule ChessCrunch.Repo.Migrations.CreateDrillsTable do
+defmodule ChessCrunch.Repo.Migrations.CreateDrills do
   use Ecto.Migration
 
   def change do
@@ -6,12 +6,12 @@ defmodule ChessCrunch.Repo.Migrations.CreateDrillsTable do
       add :id, :binary_id, primary_key: true
       add :answer, :text
       add :duration, :integer
-      add :cycle_id, references(:cycles, on_delete: :delete_all)
+      add :round_id, references(:rounds, on_delete: :delete_all)
       add :position_id, references(:positions, type: :binary_id, on_delete: :delete_all)
       timestamps()
     end
 
-    create index(:drills, [:cycle_id])
+    create index(:drills, [:round_id])
     create index(:drills, [:position_id])
   end
 end
