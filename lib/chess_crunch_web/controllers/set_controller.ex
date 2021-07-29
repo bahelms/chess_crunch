@@ -34,26 +34,6 @@ defmodule ChessCrunchWeb.SetController do
     render(conn, "show.html", set: set)
   end
 
-  def edit(conn, %{"id" => id}) do
-    set = Sets.get_set!(id)
-    changeset = Sets.change_set(set)
-    render(conn, "edit.html", set: set, changeset: changeset)
-  end
-
-  def update(conn, %{"id" => id, "set" => set_params}) do
-    set = Sets.get_set!(id)
-
-    case Sets.update_set(set, set_params) do
-      {:ok, set} ->
-        conn
-        |> put_flash(:info, "Set updated successfully.")
-        |> redirect(to: Routes.set_path(conn, :show, set))
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", set: set, changeset: changeset)
-    end
-  end
-
   def delete(conn, %{"id" => id}) do
     set = Sets.get_set!(id)
     {:ok, _set} = Sets.delete_set(set)

@@ -11,9 +11,8 @@ defmodule ChessCrunchWeb.UserSessionControllerTest do
     test "renders log in page", %{conn: conn} do
       conn = get(conn, Routes.user_session_path(conn, :new))
       response = html_response(conn, 200)
-      assert response =~ "<h1>Log in</h1>"
-      assert response =~ "Log in</a>"
-      assert response =~ "Register</a>"
+      assert response =~ "Log In"
+      assert response =~ "Register"
     end
 
     test "redirects if already logged in", %{conn: conn, user: user} do
@@ -34,10 +33,7 @@ defmodule ChessCrunchWeb.UserSessionControllerTest do
 
       # Now do a logged in request and assert on the menu
       conn = get(conn, "/")
-      response = html_response(conn, 200)
-      assert response =~ user.email
-      assert response =~ "Settings</a>"
-      assert response =~ "Log out</a>"
+      html_response(conn, 302)
     end
 
     test "logs the user in with remember me", %{conn: conn, user: user} do
@@ -75,8 +71,7 @@ defmodule ChessCrunchWeb.UserSessionControllerTest do
         })
 
       response = html_response(conn, 200)
-      assert response =~ "<h1>Log in</h1>"
-      assert response =~ "Invalid email or password"
+      assert response =~ "Log In"
     end
   end
 

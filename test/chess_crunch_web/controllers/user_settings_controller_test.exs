@@ -10,7 +10,7 @@ defmodule ChessCrunchWeb.UserSettingsControllerTest do
     test "renders settings page", %{conn: conn} do
       conn = get(conn, Routes.user_settings_path(conn, :edit))
       response = html_response(conn, 200)
-      assert response =~ "<h1>Settings</h1>"
+      assert response =~ "Account Settings"
     end
 
     test "redirects if user is not logged in" do
@@ -50,10 +50,8 @@ defmodule ChessCrunchWeb.UserSettingsControllerTest do
         })
 
       response = html_response(old_password_conn, 200)
-      assert response =~ "<h1>Settings</h1>"
-      assert response =~ "should be at least 12 character(s)"
-      assert response =~ "does not match password"
-      assert response =~ "is not valid"
+      assert response =~ "Account Settings"
+      assert response =~ "Oops, something went wrong!"
 
       assert get_session(old_password_conn, :user_token) == get_session(conn, :user_token)
     end
@@ -83,9 +81,8 @@ defmodule ChessCrunchWeb.UserSettingsControllerTest do
         })
 
       response = html_response(conn, 200)
-      assert response =~ "<h1>Settings</h1>"
-      assert response =~ "must have the @ sign and no spaces"
-      assert response =~ "is not valid"
+      assert response =~ "Account Settings"
+      assert response =~ "Oops, something went wrong!"
     end
   end
 

@@ -39,7 +39,7 @@ defmodule ChessCrunchWeb.Router do
     resources "/cycles", CycleController, only: [:index, :create, :new]
     live "/start_cycle/:id", CycleLive
     resources "/sets", SetController, only: [:index, :new, :create, :show, :delete]
-    resources "/positions", PositionController, only: [:new, :create, :delete]
+    resources "/positions", PositionController, only: [:new, :create]
     get "/users/settings", UserSettingsController, :edit
     put "/users/settings", UserSettingsController, :update
     get "/users/settings/confirm_email/:token", UserSettingsController, :confirm_email
