@@ -24,7 +24,7 @@ defmodule ChessCrunchWeb.CycleLive do
 
     # TODO: refactor not to need cycle_id
     case Cycles.complete_drill(assigns[:drill], drill_params, assigns[:round_id]) do
-      :round_completed ->
+      {:round_completed, _, _} ->
         socket =
           socket
           |> put_flash(:info, "Round completed!")

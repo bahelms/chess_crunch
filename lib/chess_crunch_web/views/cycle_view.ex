@@ -8,7 +8,7 @@ defmodule ChessCrunchWeb.CycleView do
   def status(%Cycle{completed_on: nil}), do: "In Progress"
 
   def status(cycle) do
-    case Cycles.needs_solution?(cycle) do
+    case Cycles.needs_solutions?(cycle) do
       true -> "Needs Solutions"
       false -> "Completed"
     end
@@ -27,7 +27,7 @@ defmodule ChessCrunchWeb.CycleView do
   def format_time_limit(10), do: "10 secs"
 
   def card_color(cycle) do
-    if Cycles.needs_solution?(cycle) do
+    if Cycles.needs_solutions?(cycle) do
       "red"
     end
   end

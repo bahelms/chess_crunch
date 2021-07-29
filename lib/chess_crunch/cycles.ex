@@ -3,6 +3,8 @@ defmodule ChessCrunch.Cycles do
   The Cycles context.
   """
 
+  @accuracy_threshold 0.85
+
   import Ecto.Query, warn: false
   alias ChessCrunch.{Repo, Sets}
   alias ChessCrunch.Cycles.{Cycle, Round, Drill}
@@ -51,9 +53,9 @@ defmodule ChessCrunch.Cycles do
     |> Repo.insert()
   end
 
-  def create_cycle(attrs) do
+  def create_cycle(%{"time_limit" => time_limit} = attrs) do
     attrs
-    |> Map.put("rounds", [%{number: 1}])
+    |> Map.put("rounds", [%{number: 1, time_limit: time_limit}])
     |> create_cycle()
   end
 
@@ -62,12 +64,59 @@ defmodule ChessCrunch.Cycles do
   def get_round(id), do: Repo.get!(Round, id)
 
   def complete_round(round) do
-    round
-    |> change_set(%{completed_on: DateTime.utc_now()})
-    |> Repo.update()
+    round = Repo.preload(round, drills: :position)
 
-    # make next round cycle if 85% of drills were correct
+    case needs_solutions?(round) do
+      true ->
+        {:needs_solutions, round}
+
+      false ->
+        {:ok, round} =
+          round
+          |> change_set(%{completed_on: DateTime.utc_now()})
+          |> Repo.update()
+
+        case accuracy_percent(round.drills) do
+          percent when percent < @accuracy_threshold ->
+            next_round =
+              create_round(%{
+                number: round.number,
+                time_limit: round.time_limit,
+                cycle_id: round.cycle_id
+              })
+
+            {:round_completed, round, next_round}
+
+          _percent ->
+            next_round =
+              create_round(%{
+                number: round.number + 1,
+                time_limit: next_time_limit(round),
+                cycle_id: round.cycle_id
+              })
+
+            # if there are no more rounds:
+            #   complete cycle
+            {:round_completed, round, next_round}
+        end
+    end
   end
+
+  def accuracy_percent(drills) do
+    correct =
+      Enum.reduce(drills, 0, fn drill, sum ->
+        if drill.answer == drill.position.solution do
+          sum + 1
+        else
+          sum
+        end
+      end)
+
+    correct / length(drills)
+  end
+
+  def next_time_limit(%{time_limit: 360}), do: 180
+  def next_time_limit(_), do: 0
 
   defp associate_sets(changeset, set_ids) do
     sets = Sets.find_sets_by_ids(set_ids)
@@ -141,14 +190,12 @@ defmodule ChessCrunch.Cycles do
         |> get_round()
         |> complete_round()
 
-        :round_completed
-
       drill ->
         {:next_drill, drill}
     end
   end
 
-  def needs_solution?(%{drills: drills}) do
+  def needs_solutions?(%{drills: drills}) do
     Enum.any?(drills, &is_nil(&1.position.solution))
   end
 

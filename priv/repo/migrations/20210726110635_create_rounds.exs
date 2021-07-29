@@ -5,6 +5,7 @@ defmodule ChessCrunch.Repo.Migrations.CreateRounds do
     create table(:rounds) do
       add :number, :integer, null: false
       add :completed_on, :utc_datetime
+      add :time_limit, :integer, null: false
       add :cycle_id, references(:cycles, on_delete: :delete_all)
       timestamps()
     end

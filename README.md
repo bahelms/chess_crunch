@@ -34,3 +34,7 @@ Cycle states:
 * round N complete
 * last round complete
     no next round
+
+TODO:
+* Fail drill when timer hits the round limit.
+* Change timer to count down from round limit.
