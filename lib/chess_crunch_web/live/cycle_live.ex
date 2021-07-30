@@ -22,18 +22,18 @@ defmodule ChessCrunchWeb.CycleLive do
       duration: assigns[:duration]
     }
 
-    # TODO: refactor not to need cycle_id
+    # TODO: refactor not to need round_id
     case Cycles.complete_drill(assigns[:drill], drill_params, assigns[:round_id]) do
-      {:round_completed, _, _} ->
+      {:next_drill, drill} ->
+        {:noreply, assign(socket, drill: drill)}
+
+      _ ->
         socket =
           socket
           |> put_flash(:info, "Round completed!")
           |> redirect(to: Routes.cycle_path(socket, :index))
 
         {:noreply, socket}
-
-      {:next_drill, drill} ->
-        {:noreply, assign(socket, drill: drill)}
     end
   end
 

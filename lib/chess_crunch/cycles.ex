@@ -88,16 +88,21 @@ defmodule ChessCrunch.Cycles do
             {:round_completed, round, next_round}
 
           _percent ->
-            next_round =
-              create_round(%{
-                number: round.number + 1,
-                time_limit: next_time_limit(round),
-                cycle_id: round.cycle_id
-              })
+            case next_time_limit(round) do
+              nil ->
+                complete_cycle(round)
+                {:cycle_completed, round}
 
-            # if there are no more rounds:
-            #   complete cycle
-            {:round_completed, round, next_round}
+              limit ->
+                next_round =
+                  create_round(%{
+                    number: round.number + 1,
+                    time_limit: limit,
+                    cycle_id: round.cycle_id
+                  })
+
+                {:round_completed, round, next_round}
+            end
         end
     end
   end
@@ -116,7 +121,14 @@ defmodule ChessCrunch.Cycles do
   end
 
   def next_time_limit(%{time_limit: 360}), do: 180
+  def next_time_limit(%{time_limit: 10}), do: nil
   def next_time_limit(_), do: 0
+
+  def complete_cycle(round) do
+    Repo.preload(round, :cycle).cycle
+    |> change_set(%{completed_on: DateTime.utc_now()})
+    |> Repo.update()
+  end
 
   defp associate_sets(changeset, set_ids) do
     sets = Sets.find_sets_by_ids(set_ids)

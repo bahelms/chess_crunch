@@ -1,0 +1,18 @@
+<li class="border-b last:border-b-0 py-1 px-3">
+  <div>
+    <div class="flex justify-between">
+      <strong><%= @cycle.name %></strong>
+      <div class="text-red-300"><%= status(@round, @cycle) %></div>
+    </div>
+
+    <div class="flex justify-between items-center">
+      <div>
+        <div>Completed: <%= drills_completed(@cycle) %></div>
+        <div>Time Limit: <%= format_time_limit(@round.time_limit) %></div>
+        <div>Round: <%= @round.number %></div>
+      </div>
+      <div><%= link "Start", to: Routes.live_path(@conn, ChessCrunchWeb.CycleLive, @cycle.id), class: "btn-green p-2" %></div>
+    </div>
+  </div>
+</li>
+

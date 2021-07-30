@@ -5,12 +5,15 @@ defmodule ChessCrunchWeb.CycleView do
 
   def set_options(sets), do: Enum.map(sets, &[key: &1.name, value: &1.id])
 
-  def status(%Cycle{completed_on: nil}), do: "In Progress"
+  def status(_, %Cycle{completed_on: completed_on}) when completed_on, do: "Completed"
 
-  def status(cycle) do
-    case Cycles.needs_solutions?(cycle) do
-      true -> "Needs Solutions"
-      false -> "Completed"
+  def status(round, _) do
+    case Cycles.needs_solutions?(round) do
+      true ->
+        "Needs Solutions"
+
+      false ->
+        "In Progress"
     end
   end
 

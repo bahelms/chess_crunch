@@ -14,23 +14,10 @@
     <%= if !Enum.empty?(@in_progress_cycles) do %>
       <ul class="m-3 border rounded">
         <%= for cycle <- @in_progress_cycles do %>
-          <li class="border-b last:border-b-0 py-1 px-3">
-            <div>
-              <div class="flex justify-between">
-                <strong><%= cycle.name %></strong>
-                <div class="text-red-300"><%= status(cycle) %></div>
-              </div>
-
-              <div class="flex justify-between items-center">
-                <div>
-                  <div>Completed: <%= drills_completed(cycle) %></div>
-                  <div>Time Limit: <%= format_time_limit(cycle.time_limit) %></div>
-                  <div>Round: <%= Cycles.current_round(cycle.rounds).number %></div>
-                </div>
-                <div><%= link "Start", to: Routes.live_path(@conn, ChessCrunchWeb.CycleLive, cycle.id), class: "btn-green p-2" %></div>
-              </div>
-            </div>
-          </li>
+          <%= render "_cycle_card.html",
+            conn: @conn,
+            round: Cycles.current_round(cycle.rounds),
+            cycle: cycle %>
         <% end %>
       </ul>
     <% end %>
@@ -46,7 +33,7 @@
             <div>
               <div class="flex justify-between">
                 <strong><%= cycle.name %></strong>
-                <div class="text-red-300"><%= status(cycle) %></div>
+                <div class="text-red-300"><%= status(Cycles.current_round(cycle.rounds), cycle) %></div>
               </div>
               <div>Completed: <%= drills_completed(cycle) %></div>
             </div>

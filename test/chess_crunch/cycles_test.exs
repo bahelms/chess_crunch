@@ -439,7 +439,6 @@ defmodule ChessCrunch.CyclesTest do
     end
   end
 
-  @tag :skip
   describe "complete_round/1 with no more rounds" do
     setup [:create_cycle_with_sets, :create_passing_drills]
 
