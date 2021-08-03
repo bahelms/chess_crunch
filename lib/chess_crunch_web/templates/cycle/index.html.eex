@@ -6,7 +6,7 @@
     <%= link "Create new cycle", to: Routes.cycle_path(@conn, :new), class: "btn-blue p-2" %>
   </div>
 <% else %>
-  <section x-data="cycleIndex()">
+  <section>
     <div class="my-6 text-center">
       <%= link "Create new cycle", to: Routes.cycle_path(@conn, :new), class: "btn-blue p-2" %>
     </div>

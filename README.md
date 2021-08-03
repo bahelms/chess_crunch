@@ -38,3 +38,4 @@ Cycle states:
 TODO:
 * Fail drill when timer hits the round limit.
 * Change timer to count down from round limit.
+* Remove cycle Start button when needs solutions.
