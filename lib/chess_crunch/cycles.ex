@@ -110,7 +110,7 @@ defmodule ChessCrunch.Cycles do
   def accuracy_percent(drills) do
     correct =
       Enum.reduce(drills, 0, fn drill, sum ->
-        if drill.answer == drill.position.solution do
+        if drill.answer == drill.position.solution_moves do
           sum + 1
         else
           sum
@@ -160,8 +160,8 @@ defmodule ChessCrunch.Cycles do
     |> Repo.insert!()
   end
 
-  def total_drills(cycle) do
-    Repo.preload(cycle, :drills).drills
+  def total_drills(model) do
+    Repo.preload(model, :drills).drills
     |> length()
   end
 
@@ -208,7 +208,11 @@ defmodule ChessCrunch.Cycles do
   end
 
   def needs_solutions?(%{drills: drills}) do
-    Enum.any?(drills, &is_nil(&1.position.solution))
+    Enum.any?(drills, &is_nil(&1.position.solution_fen))
+  end
+
+  def in_progress?(cycle) do
+    total_drills(cycle) != total_positions(cycle)
   end
 
   def current_round(rounds), do: Enum.find(rounds, &(!&1.completed_on))

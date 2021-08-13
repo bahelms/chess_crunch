@@ -7,13 +7,19 @@ defmodule ChessCrunchWeb.CycleView do
 
   def status(_, %Cycle{completed_on: completed_on}) when completed_on, do: "Completed"
 
-  def status(round, _) do
-    case Cycles.needs_solutions?(round) do
+  def status(round, cycle) do
+    case Cycles.in_progress?(cycle) do
       true ->
-        "Needs Solutions"
+        "In Progress"
 
       false ->
-        "In Progress"
+        case Cycles.needs_solutions?(round) do
+          true ->
+            "Needs Solutions"
+
+          false ->
+            "Completed"
+        end
     end
   end
 
