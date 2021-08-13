@@ -1,6 +1,6 @@
 defmodule ChessCrunchWeb.CycleLive do
   use ChessCrunchWeb, :live_view
-  alias ChessCrunch.Cycles
+  alias ChessCrunch.{PGN, Cycles}
 
   @impl true
   def mount(%{"id" => cycle_id}, _session, socket) do
@@ -43,17 +43,14 @@ defmodule ChessCrunchWeb.CycleLive do
         %{"pgn" => pgn, "duration" => duration},
         %{assigns: _assigns} = socket
       ) do
-    moves =
-      pgn
-      |> String.split("\n\n")
-      |> List.last()
+    pgn = PGN.new(pgn)
 
     # if assigns[:drill].position.solution do
     #   # check if moves are correct
     #   #   If incorrect, save answer and end drill
     # end
 
-    {:noreply, assign(socket, %{answer: moves, duration: duration})}
+    {:noreply, assign(socket, %{answer: pgn.moves, duration: duration})}
   end
 
   defp format_to_play(%{to_play: "w"}), do: "White"

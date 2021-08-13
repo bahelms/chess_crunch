@@ -1,0 +1,53 @@
+<%= form_for @changeset, "#", [phx_change: :save_position], fn f -> %>
+  <div class="text-center m-5 flex justify-between">
+    <label>
+      Name: 
+      <%= text_input f, :name, "phx-debounce": 500, class: "border rounded ml-2 p-1" %>
+      <%= error_tag f, :name %>
+    </label>
+    <%= button "Back to set", 
+      to: Routes.set_path(@socket, :show, @position.set_id), 
+      method: :get, 
+      class: "btn bg-green-200 py-1" %>
+  </div>
+
+  <div class="flex justify-center mb-4">
+    <button class="btn bg-<%= if @position.solution_fen, do: 'blue', else: 'red' %>-300  py-2 mr-8" type="button" phx-click="toggle_solution">Set Solution</button>
+    <button class="btn bg-blue-300 py-2" type="button" phx-click="toggle_position">Edit Position</button>
+  </div>
+
+  <%= if @show_solution do %>
+    <div class="mb-4">
+      <chess-board 
+        id="solutionBoard"
+        phx-hook="chessboard"
+        event="set_solution"
+        draggable-pieces 
+        fen="<%= @fen %>"
+        position="<%= @fen %>">
+      </chess-board>
+    </div>
+    <div class="mx-4 -mt-8 text-center">
+      <%= if @position.solution_moves do %>
+        <%= @position.solution_moves %>
+      <% else %>
+        <%= format_to_play(@position) %> to play
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= if @show_position do %>
+    <div class="text-center"> WIP </div>
+    <%# <div class="mb-4"> %>
+    <%#   <chess-board %> 
+    <%#     @change="fen = objToFen($event.detail.value)" %> 
+    <%#     spare-pieces %> 
+    <%#     drop-off-board="trash" %> 
+    <%#     position="<%= @position.fen %1>"> %>
+    <%#     <%= hidden_input f, :fen, ":value": "fen" %1> %>
+    <%#   </chess-board> %>
+    <%#   <div class="-mt-10"></div> %>
+    <%# </div> %>
+  <% end %>
+<% end %>
+

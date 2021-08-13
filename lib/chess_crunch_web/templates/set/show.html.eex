@@ -22,10 +22,10 @@
 <ul class="m-3 px-3 border rounded">
   <%= for position <- @set.positions do %>
     <li class="border-b last:border-b-0 py-1">
-      <div class="flex justify-between">
+      <%= link to: Routes.live_path(@conn, ChessCrunchWeb.EditPositionLive, position), class: "flex justify-between" do %>
         <div><%= position.name %></div>
-        <div class="text-red-500"><%= solution_status(position.solution) %></div>
-      </div>
+        <div class="text-red-500"><%= solution_status(position.solution_fen) %></div>
+      <% end %>
     </li>
   <% end %>
 </ul>

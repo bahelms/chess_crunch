@@ -18,7 +18,8 @@ defmodule ChessCrunch.CyclesTest do
       %{
         name: "100",
         to_play: "white",
-        solution: "1. xx",
+        solution_moves: "1. xx",
+        solution_fen: "something",
         set_id: set1.id,
         inserted_at: NaiveDateTime.new!(2000, 1, 29, 0, 0, 0),
         updated_at: NaiveDateTime.new!(2000, 1, 29, 0, 0, 0)
@@ -26,7 +27,8 @@ defmodule ChessCrunch.CyclesTest do
       %{
         name: "101",
         to_play: "black",
-        solution: "1. xx",
+        solution_moves: "1. xx",
+        solution_fen: "something",
         set_id: set1.id,
         inserted_at: NaiveDateTime.new!(2000, 1, 30, 0, 0, 0),
         updated_at: NaiveDateTime.new!(2000, 1, 30, 0, 0, 0)
@@ -34,7 +36,8 @@ defmodule ChessCrunch.CyclesTest do
       %{
         name: "102",
         to_play: "white",
-        solution: "1. xx",
+        solution_moves: "1. xx",
+        solution_fen: "something",
         set_id: set1.id,
         inserted_at: NaiveDateTime.new!(2000, 1, 31, 0, 0, 0),
         updated_at: NaiveDateTime.new!(2000, 1, 31, 0, 0, 0)
@@ -42,7 +45,8 @@ defmodule ChessCrunch.CyclesTest do
       %{
         name: "200",
         to_play: "black",
-        solution: "1. xx",
+        solution_moves: "1. xx",
+        solution_fen: "something",
         set_id: set2.id,
         inserted_at: NaiveDateTime.new!(2000, 2, 1, 0, 0, 0),
         updated_at: NaiveDateTime.new!(2000, 2, 1, 0, 0, 0)
@@ -50,7 +54,8 @@ defmodule ChessCrunch.CyclesTest do
       %{
         name: "201",
         to_play: "white",
-        solution: "1. xx",
+        solution_moves: "1. xx",
+        solution_fen: "something",
         set_id: set2.id,
         inserted_at: NaiveDateTime.new!(2000, 2, 2, 0, 0, 0),
         updated_at: NaiveDateTime.new!(2000, 2, 2, 0, 0, 0)
@@ -80,7 +85,7 @@ defmodule ChessCrunch.CyclesTest do
 
   defp no_more_drills(%{valid_attrs: attrs}) do
     {:ok, set} = Sets.create_set(%{name: "set1", user_id: attrs["user_id"]})
-    Sets.create_position(%{name: "1", to_play: "black", set_id: set.id, solution: "1. xx"})
+    Sets.create_position(%{name: "1", to_play: "black", set_id: set.id, solution_fen: "1. xx"})
     cycle = create_cycle(attrs, [set.id])
     round = Cycles.create_round(%{cycle_id: cycle.id, number: 1, time_limit: 360})
     %{round: round}
@@ -92,11 +97,11 @@ defmodule ChessCrunch.CyclesTest do
     pos3 = Repo.get_by!(Sets.Position, name: "102")
     pos4 = Repo.get_by!(Sets.Position, name: "200")
     pos5 = Repo.get_by!(Sets.Position, name: "201")
-    Cycles.create_drill(%{round_id: round.id, position_id: pos1.id, answer: pos1.solution})
-    Cycles.create_drill(%{round_id: round.id, position_id: pos2.id, answer: pos1.solution})
-    Cycles.create_drill(%{round_id: round.id, position_id: pos3.id, answer: pos1.solution})
-    Cycles.create_drill(%{round_id: round.id, position_id: pos4.id, answer: pos1.solution})
-    Cycles.create_drill(%{round_id: round.id, position_id: pos5.id, answer: pos1.solution})
+    Cycles.create_drill(%{round_id: round.id, position_id: pos1.id, answer: pos1.solution_moves})
+    Cycles.create_drill(%{round_id: round.id, position_id: pos2.id, answer: pos1.solution_moves})
+    Cycles.create_drill(%{round_id: round.id, position_id: pos3.id, answer: pos1.solution_moves})
+    Cycles.create_drill(%{round_id: round.id, position_id: pos4.id, answer: pos1.solution_moves})
+    Cycles.create_drill(%{round_id: round.id, position_id: pos5.id, answer: pos1.solution_moves})
     context
   end
 
@@ -339,9 +344,9 @@ defmodule ChessCrunch.CyclesTest do
     test "returns true when a position does not have a solution" do
       assert %{
                drills: [
-                 %{position: %{solution: "hey"}},
-                 %{position: %{solution: nil}},
-                 %{position: %{solution: "there"}}
+                 %{position: %{solution_fen: "hey"}},
+                 %{position: %{solution_fen: nil}},
+                 %{position: %{solution_fen: "there"}}
                ]
              }
              |> Cycles.needs_solutions?()
@@ -350,8 +355,8 @@ defmodule ChessCrunch.CyclesTest do
     test "returns false when all positions have solutions" do
       refute %{
                drills: [
-                 %{position: %{solution: "hey"}},
-                 %{position: %{solution: "there"}}
+                 %{position: %{solution_fen: "hey"}},
+                 %{position: %{solution_fen: "there"}}
                ]
              }
              |> Cycles.needs_solutions?()
@@ -408,7 +413,7 @@ defmodule ChessCrunch.CyclesTest do
     setup [:create_cycle_with_sets]
 
     test "returns needs_solutions and does not set completed_on", %{round: round} do
-      Repo.update_all(Sets.Position, set: [solution: nil])
+      Repo.update_all(Sets.Position, set: [solution_fen: nil])
       pos = Repo.get_by!(Sets.Position, name: "201")
       Cycles.create_drill(%{position_id: pos.id, round_id: round.id})
 

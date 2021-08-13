@@ -24,12 +24,9 @@ const liveViewHooks = {
   chessboard: {
     game: null,
     startGame() {
-      const fen = `${this.el.fen()} ${this.el.getAttribute('to-play')} KQkq - 0 1`
+      const fen = this.el.getAttribute('fen')
+      console.log('FEN', fen)
       this.game = new Chess(fen)
-    },
-
-    updated() {
-      this.startGame()
     },
 
     mounted() {
@@ -50,12 +47,15 @@ const liveViewHooks = {
         const { source, target, setAction } = e.detail
         const move = this.game.move({ from: source, to: target })
         const duration = this.el.getAttribute('duration')
+        const event = this.el.getAttribute('event')
 
         // prevent illegal moves
         if (move === null) {
-          setAction("snapback")
+          return setAction("snapback")
         }
-        this.pushEvent("board_update", { pgn: this.game.pgn(), duration })
+        console.log('Moved - PGN', this.game.pgn())
+        console.log('Moved - FEN', this.game.fen())
+        this.pushEvent(event, { pgn: this.game.pgn(), fen: this.game.fen(), duration })
       })
 
       this.el.addEventListener("snap-end", (e) => {
