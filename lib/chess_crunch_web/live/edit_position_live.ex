@@ -2,6 +2,9 @@ defmodule ChessCrunchWeb.EditPositionLive do
   use ChessCrunchWeb, :live_view
   alias ChessCrunch.{PGN, Sets}
 
+  defdelegate format_to_play(position, opts), to: Sets
+  defdelegate format_to_play(position), to: Sets
+
   @impl true
   def mount(%{"id" => position_id}, _session, socket) do
     position = Sets.get_position!(position_id)
@@ -12,7 +15,8 @@ defmodule ChessCrunchWeb.EditPositionLive do
        changeset: Sets.change_position(position),
        show_solution: false,
        show_position: false,
-       fen: position.solution_fen || position.fen
+       fen: position.solution_fen || position.fen,
+       solution_color: if(position.solution_fen, do: "blue", else: "red")
      )}
   end
 
@@ -52,8 +56,4 @@ defmodule ChessCrunchWeb.EditPositionLive do
        fen: fen
      )}
   end
-
-  # TODO: duplicated in cycle_live.ex
-  defp format_to_play(%{to_play: "w"}), do: "White"
-  defp format_to_play(_), do: "Black"
 end

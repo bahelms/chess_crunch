@@ -133,4 +133,9 @@ defmodule ChessCrunch.Sets do
     |> Position.changeset(attrs)
     |> Repo.update()
   end
+
+  def format_to_play(%{to_play: "w"}, caps: false), do: "white"
+  def format_to_play(_, caps: false), do: "black"
+  def format_to_play(%{to_play: "w"}), do: "White"
+  def format_to_play(_), do: "Black"
 end

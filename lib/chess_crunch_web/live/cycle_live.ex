@@ -1,6 +1,9 @@
 defmodule ChessCrunchWeb.CycleLive do
   use ChessCrunchWeb, :live_view
-  alias ChessCrunch.{PGN, Cycles, Drills}
+  alias ChessCrunch.{PGN, Cycles, Drills, Sets}
+
+  defdelegate format_to_play(position, opts), to: Sets
+  defdelegate format_to_play(position), to: Sets
 
   @impl true
   def mount(%{"id" => cycle_id}, _session, socket) do
@@ -73,9 +76,4 @@ defmodule ChessCrunchWeb.CycleLive do
         {:noreply, socket}
     end
   end
-
-  defp format_to_play(%{to_play: "w"}, caps: false), do: "white"
-  defp format_to_play(_, caps: false), do: "black"
-  defp format_to_play(%{to_play: "w"}), do: "White"
-  defp format_to_play(_), do: "Black"
 end
