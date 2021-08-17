@@ -25,7 +25,6 @@ const liveViewHooks = {
     game: null,
     startGame() {
       const fen = this.el.getAttribute('fen')
-      console.log('FEN', fen)
       this.game = new Chess(fen)
     },
 
@@ -53,8 +52,6 @@ const liveViewHooks = {
         if (move === null) {
           return setAction("snapback")
         }
-        console.log('Moved - PGN', this.game.pgn())
-        console.log('Moved - FEN', this.game.fen())
         this.pushEvent(event, { pgn: this.game.pgn(), fen: this.game.fen(), duration })
       })
 
@@ -116,7 +113,6 @@ document.addEventListener("alpine:init", () => {
     draggablePieces: true,
 
     init() {
-      console.log("INIT", status)
       this.timer = setInterval(() => this.seconds++, 1000)
       document.addEventListener("stop_drill", ({detail: {status}}) => {
         if (status === "incorrect") {

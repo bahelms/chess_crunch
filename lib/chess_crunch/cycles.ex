@@ -6,7 +6,7 @@ defmodule ChessCrunch.Cycles do
   @accuracy_threshold 0.85
 
   import Ecto.Query, warn: false
-  alias ChessCrunch.{Repo, Sets}
+  alias ChessCrunch.{Repo, Sets, Drills}
   alias ChessCrunch.Cycles.{Cycle, Round, Drill}
 
   def list_cycles(user) do
@@ -148,18 +148,6 @@ defmodule ChessCrunch.Cycles do
     |> Repo.insert!()
   end
 
-  def create_drill(attrs) do
-    %Drill{}
-    |> Drill.changeset(attrs)
-    |> Repo.insert!()
-  end
-
-  def create_drill(%Drill{} = drill, changes) do
-    drill
-    |> Drill.changeset(changes)
-    |> Repo.insert!()
-  end
-
   def total_drills(model) do
     Repo.preload(model, :drills).drills
     |> length()
@@ -193,12 +181,10 @@ defmodule ChessCrunch.Cycles do
     end
   end
 
-  def complete_drill(drill, drill_params, round_id) do
-    create_drill(drill, drill_params)
-
-    case next_drill(round_id) do
+  def complete_drill(drill) do
+    case next_drill(drill.round_id) do
       nil ->
-        round_id
+        drill.round_id
         |> get_round()
         |> complete_round()
 

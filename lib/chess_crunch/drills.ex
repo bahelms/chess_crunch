@@ -3,6 +3,21 @@ defmodule ChessCrunch.Drills do
   The Drills context.
   """
 
+  alias ChessCrunch.Cycles.Drill
+  alias ChessCrunch.Repo
+
+  def create_drill(attrs) do
+    %Drill{}
+    |> Drill.changeset(attrs)
+    |> Repo.insert!()
+  end
+
+  def create_drill(%Drill{} = drill, changes) do
+    drill
+    |> Drill.changeset(changes)
+    |> Repo.insert!()
+  end
+
   def evaluate_moves(nil, moves), do: {:correct, moves}
 
   def evaluate_moves(solution, moves) do

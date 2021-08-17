@@ -20,13 +20,12 @@ defmodule ChessCrunchWeb.CycleLive do
 
   @impl true
   def handle_event("save_answer", _, %{assigns: assigns} = socket) do
-    drill_params = %{
-      answer: assigns[:answer],
-      duration: assigns[:duration]
-    }
+    # drill_params = %{
+    #   answer: assigns[:answer],
+    #   duration: assigns[:duration]
+    # }
 
-    # TODO: refactor not to need round_id
-    case Cycles.complete_drill(assigns[:drill], drill_params, assigns[:round_id]) do
+    case Cycles.complete_drill(assigns[:drill]) do
       {:next_drill, drill} ->
         {:noreply, assign(socket, drill: drill, status: nil)}
 
@@ -58,13 +57,20 @@ defmodule ChessCrunchWeb.CycleLive do
         {:noreply, assign(socket, %{answer: moves, fen: fen, duration: duration})}
 
       {:incorrect, moves} ->
+        drill = Drills.create_drill(drill, %{answer: moves, duration: duration})
+
         socket =
           socket
-          |> assign(%{answer: moves, fen: fen, duration: duration, status: :incorrect})
+          |> assign(%{
+            drill: drill,
+            answer: moves,
+            fen: fen,
+            duration: duration,
+            status: :incorrect
+          })
           |> push_event("stop_drill", %{status: :incorrect})
 
-        {:noreply,
-         assign(socket, %{answer: moves, fen: fen, duration: duration, status: :incorrect})}
+        {:noreply, socket}
     end
   end
 
