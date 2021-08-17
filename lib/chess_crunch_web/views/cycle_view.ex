@@ -7,24 +7,14 @@ defmodule ChessCrunchWeb.CycleView do
 
   def status(_, %Cycle{completed_on: completed_on}) when completed_on, do: "Completed"
 
-  def status(round, cycle) do
-    case Cycles.in_progress?(cycle) do
-      true ->
-        "In Progress"
-
-      false ->
-        case Cycles.needs_solutions?(round) do
-          true ->
-            "Needs Solutions"
-
-          false ->
-            "Completed"
-        end
+  def status(round) do
+    if Cycles.needs_solutions?(round) do
+      "Needs Solutions"
     end
   end
 
-  def drills_completed(cycle) do
-    "#{Cycles.total_drills(cycle)}/#{Cycles.total_positions(cycle)}"
+  def drills_completed(round) do
+    "#{Cycles.total_drills(round)}/#{Cycles.total_positions(round.cycle)}"
   end
 
   def format_time_limit(360), do: "6 min"

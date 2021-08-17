@@ -8,7 +8,6 @@ defmodule ChessCrunch.Cycles.Cycle do
 
     many_to_many :sets, ChessCrunch.Sets.Set, join_through: "cycles_sets"
     has_many :rounds, ChessCrunch.Cycles.Round
-    has_many :drills, through: [:rounds, :drills]
     belongs_to :user, ChessCrunch.Accounts.User, type: :binary_id
 
     timestamps()

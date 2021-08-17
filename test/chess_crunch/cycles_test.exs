@@ -145,7 +145,7 @@ defmodule ChessCrunch.CyclesTest do
       Cycles.create_drill(%{position_id: pos1.id, round_id: round.id})
       Cycles.create_drill(%{position_id: pos1.id, round_id: round.id})
 
-      assert Cycles.total_drills(cycle) == 3
+      assert Cycles.total_drills(round) == 3
     end
   end
 
@@ -330,13 +330,13 @@ defmodule ChessCrunch.CyclesTest do
   describe "list_cycles_grouped_by_status/1 with sets" do
     setup [:create_cycle_with_sets]
 
-    test "preloads drills and their positions", %{round: round, user: user} do
+    test "preloads rounds, drills, and their positions", %{round: round, user: user} do
       pos = Repo.get_by!(Sets.Position, name: "201")
       Cycles.create_drill(%{round_id: round.id, position_id: pos.id})
       %{in_progress: in_progress} = Cycles.list_cycles_grouped_by_status(user)
 
-      [drill | _] = List.first(in_progress).drills
-      assert drill.position.name == "201"
+      [round | _] = List.first(in_progress).rounds
+      assert List.first(round.drills).position.name == "201"
     end
   end
 

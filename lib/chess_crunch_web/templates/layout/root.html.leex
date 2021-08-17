@@ -10,7 +10,7 @@
     <script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </head>
   <body>
-    <header x-data="{mobileMenuOpen: false}" class="flex flex-row flex-wrap justify-between md:space-x-4 md:items-center py-2 px-2 relative bg-gray-400">
+    <header class="flex flex-row flex-wrap justify-between md:space-x-4 md:items-center py-2 px-2 relative bg-gray-400">
       <h4 class="font-bold text-4xl">
         <span class="sr-only">Chess Crunch</span>
         <%= link "ChessCrunch", to: "/"  %>

@@ -17,7 +17,7 @@ defmodule ChessCrunch.Cycles do
 
   def list_cycles_grouped_by_status(user) do
     list_cycles(user)
-    |> Repo.preload(drills: :position)
+    |> Repo.preload(rounds: [:cycle, drills: :position])
     |> Enum.reduce(%{completed: [], in_progress: []}, fn
       %{completed_on: nil} = cycle, map ->
         update_map_list(map, cycle, :in_progress)
@@ -139,7 +139,7 @@ defmodule ChessCrunch.Cycles do
     cycle
     |> Repo.preload(sets: :positions)
     |> Map.get(:sets)
-    |> Enum.reduce(0, fn set, sum -> sum + length(set.positions) end)
+    |> Enum.reduce(0, &(&2 + length(&1.positions)))
   end
 
   def create_round(attrs) do

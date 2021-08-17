@@ -1,15 +1,16 @@
 <%= if @current_user do %>
-  <button @click="mobileMenuOpen = !mobileMenuOpen" class="inline-block md:hidden">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-    </svg>
-  </button>
-  <nav class="absolute top-14 left-0 shadow-md rounded-lg flex-col pt-2 pr-2 bg-gray-200 w-full md:flex md:rounded-none md:shadow-none md:relative md:top-0 md:space-x-6 md:w-auto md:bg-transparent md:flex-row md:pt-0 z-10"
-    :class="{'flex': mobileMenuOpen, 'hidden': !mobileMenuOpen}"
-    @click.away="mobileMenuOpen = false">
-    <%= link "Drills", to: Routes.cycle_path(@conn, :index), class: "pl-3 py-1" %>
-    <%= link "Position Sets", to: Routes.set_path(@conn, :index), class: "pl-3 py-1" %>
-    <%= link "Settings", to: Routes.user_settings_path(@conn, :edit), class: "pl-3 py-1" %>
-    <%= link "Log out", to: Routes.user_session_path(@conn, :delete), method: :delete, class: "pl-3 py-1" %>
-  </nav>
+  <div x-data="{ mobileMenuOpen: false }">
+    <button @click="mobileMenuOpen = !mobileMenuOpen" class="inline-block md:hidden">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+    <nav x-show="mobileMenuOpen" class="flex absolute top-14 left-0 shadow-md rounded-lg flex-col pt-2 pr-2 bg-gray-200 w-full md:flex md:rounded-none md:shadow-none md:relative md:top-0 md:space-x-6 md:w-auto md:bg-transparent md:flex-row md:pt-0 z-10"
+      @click.outside="mobileMenuOpen = false">
+      <%= link "Drills", to: Routes.cycle_path(@conn, :index), class: "pl-3 py-1" %>
+      <%= link "Position Sets", to: Routes.set_path(@conn, :index), class: "pl-3 py-1" %>
+      <%= link "Settings", to: Routes.user_settings_path(@conn, :edit), class: "pl-3 py-1" %>
+      <%= link "Log out", to: Routes.user_session_path(@conn, :delete), method: :delete, class: "pl-3 py-1" %>
+    </nav>
+  </div>
 <% end %>

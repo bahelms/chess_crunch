@@ -1,23 +1,30 @@
-<div x-data="{ seconds: 0, answer: '' }" x-init="setInterval(() => { seconds++ }, 1000)">
-  <%= form_for :drill, "#", [phx_submit: :save_answer, class: "text-center"], fn _f -> %>
+<div x-data="drill">
+  <%= form_for :drill, "#", [phx_submit: :save_answer, class: "text-center"], fn f -> %>
     <div class="flex justify-evenly my-4">
       <div><strong>To Play: </strong><%= format_to_play(@drill.position) %></div>
-      <div x-text="secondsToTimeFormat(seconds)" class=""></div>
+      <div x-text="secondsToTimeFormat(seconds)"></div>
     </div>
 
     <chess-board
       id="board"
       phx-hook="chessboard"
       event="board_update"
-      position="<%= @drill.position.fen %>"
-      fen="<%= @drill.position.fen %>"
+      position="<%= @fen %>"
+      fen="<%= @fen %>"
       :duration="seconds"
-      draggable-pieces>
+      status="<%= @status %>"
+      orientation="<%= format_to_play(@drill.position, caps: false) %>"
+      :draggable-pieces="draggablePieces">
     </chess-board>
 
     <%= if !@drill.position.solution_fen do %>
       <p class="-mt-4 mb-2">This position has no solution</p>
-      <%= submit "Save and Go To Next", "@click": "seconds = 0", class: "btn bg-green-400 px-5 py-2" %>
+      <%= submit "Save and Go To Next", "@click": "reset()", class: "btn bg-green-400 px-5 py-2" %>
+    <% end %>
+
+    <%= if @status == :incorrect do %>
+      <p class="-mt-4 mb-2 text-red-500">Incorrect!</p>
+      <%= submit "Next Drill", "@click": "reset()", class: "btn bg-green-400 px-5 py-2" %>
     <% end %>
   <% end %>
 </div>
