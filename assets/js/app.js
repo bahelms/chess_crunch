@@ -16,7 +16,7 @@ import "phoenix_html"
 import { Socket } from "phoenix"
 import topbar from "topbar"
 import { LiveSocket } from "phoenix_live_view"
-import "alpinejs"
+import Alpine from "alpinejs"
 import { objToFen } from "chessboard-element"
 import Chess from "chess.js"
 
@@ -62,6 +62,10 @@ const liveViewHooks = {
         // update board for special cases: castling, en passant, pawn promotion
         this.el.setPosition(this.game.fen())
       })
+
+      this.handleEvent("stop_drill", (payload) => {
+        document.dispatchEvent(new CustomEvent("stop_drill", {detail: payload}))
+      })
     }
   }
 }
@@ -73,8 +77,8 @@ let liveSocket = new LiveSocket("/live", Socket, {
   // make LiveView work nicely with alpinejs
   dom: {
     onBeforeElUpdated(from, to) {
-      if (from.__x) {
-        window.Alpine.clone(from.__x, to)
+      if (from._x_dataStack) {
+        Alpine.clone(from, to)
       }
     }
   }
@@ -102,10 +106,38 @@ const zeroPad = (val) => {
   return "0" + valString
 }
 
-window.secondsToTimeFormat = (secs) => {
-  const mins = zeroPad(parseInt(secs / 60))
-  const remainingSecs = zeroPad(secs % 60)
-  return `${mins}:${remainingSecs}`
-}
-
 window.objToFen = objToFen
+
+document.addEventListener("alpine:init", () => {
+  Alpine.data("drill", () => ({
+    seconds: 0,
+    answer: "",
+    timer: null,
+    draggablePieces: true,
+
+    init() {
+      console.log("INIT", status)
+      this.timer = setInterval(() => this.seconds++, 1000)
+      document.addEventListener("stop_drill", ({detail: {status}}) => {
+        if (status === "incorrect") {
+          clearInterval(this.timer)
+          this.draggablePieces = false
+        }
+      })
+    },
+
+    reset() {
+      this.seconds = 0
+      this.timer = setInterval(() => this.seconds++, 1000)
+      this.draggablePieces = true
+    },
+
+    secondsToTimeFormat(secs) {
+      const mins = zeroPad(parseInt(secs / 60))
+      const remainingSecs = zeroPad(secs % 60)
+      return `${mins}:${remainingSecs}`
+    },
+  }))
+})
+
+Alpine.start()
