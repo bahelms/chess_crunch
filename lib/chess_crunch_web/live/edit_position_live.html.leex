@@ -24,6 +24,7 @@
         event="set_solution"
         draggable-pieces 
         fen="<%= @fen %>"
+        orientation="<%= format_to_play(@drill.position, caps: false) %>"
         position="<%= @fen %>">
       </chess-board>
     </div>
@@ -37,17 +38,16 @@
   <% end %>
 
   <%= if @show_position do %>
-    <div class="text-center"> WIP </div>
-    <%# <div class="mb-4"> %>
-    <%#   <chess-board %> 
-    <%#     @change="fen = objToFen($event.detail.value)" %> 
-    <%#     spare-pieces %> 
-    <%#     drop-off-board="trash" %> 
-    <%#     position="<%= @position.fen %1>"> %>
-    <%#     <%= hidden_input f, :fen, ":value": "fen" %1> %>
-    <%#   </chess-board> %>
-    <%#   <div class="-mt-10"></div> %>
-    <%# </div> %>
+    <p class="text-center"><strong><%= format_to_play(@position) %> to play</strong></p>
+    <div class="mb-4">
+      <chess-board
+        @change="fen = objToFen($event.detail.value)"
+        spare-pieces
+        drop-off-board="trash"
+        position="<%= @position.fen %>">
+        <%= hidden_input f, :fen, ":value": "fen" %>
+      </chess-board>
+    </div>
   <% end %>
 <% end %>
 
