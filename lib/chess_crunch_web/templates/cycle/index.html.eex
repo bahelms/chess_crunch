@@ -12,7 +12,7 @@
     </div>
 
     <%= if !Enum.empty?(@in_progress_cycles) do %>
-      <ul class="m-3 border rounded">
+      <ul class="m-3 border-2 rounded">
         <%= for cycle <- @in_progress_cycles do %>
           <%= render "_cycle_card.html",
             conn: @conn,

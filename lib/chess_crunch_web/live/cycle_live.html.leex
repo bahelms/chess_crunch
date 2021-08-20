@@ -4,22 +4,34 @@
     <div x-text="secondsToTimeFormat(seconds)"></div>
   </div>
 
-  <chess-board
-    id="board"
-    phx-hook="chessboard"
-    event="board_update"
-    position="<%= @fen %>"
-    fen="<%= @fen %>"
-    :duration="seconds"
-    status="<%= @status %>"
-    orientation="<%= format_to_play(@drill.position, caps: false) %>"
-    :draggable-pieces="draggablePieces">
-  </chess-board>
+  <%= if @drill.position.solution_fen do %>
+    <chess-board
+      id="board"
+      phx-hook="chessboard"
+      event="board_update"
+      position="<%= @fen %>"
+      fen="<%= @fen %>"
+      orientation="<%= format_to_play(@drill.position, caps: false) %>"
+      :draggable-pieces="draggablePieces"
+      :duration="seconds">
+    </chess-board>
+  <% else %>
+    <chess-board
+      id="board"
+      phx-hook="chessboard"
+      event="store_moves"
+      position="<%= @fen %>"
+      fen="<%= @fen %>"
+      orientation="<%= format_to_play(@drill.position, caps: false) %>"
+      draggable-pieces
+      :duration="seconds">
+    </chess-board>
+  <% end %>
 
   <%= if !@drill.position.solution_fen do %>
     <p class="-mt-4 mb-2">This position has no solution</p>
     <button class="btn bg-green-400 px-5 py-2" type="button" phx-click="save_answer" @click="reset()">
-      Save and Go To Next
+      Save and Next Drill
     </button>
   <% end %>
 

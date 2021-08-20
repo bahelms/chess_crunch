@@ -52,17 +52,21 @@ defmodule ChessCrunchWeb.CycleLive do
   end
 
   @impl true
-  def handle_event("save_answer", _, %{assigns: assigns} = socket) do
-    # drill_params = %{
-    #   answer: assigns[:answer],
-    #   duration: assigns[:duration]
-    # }
+  def handle_event("store_moves", %{"pgn" => pgn, "duration" => duration}, socket) do
+    {:noreply, assign(socket, %{moves: PGN.new(pgn).moves, duration: duration})}
+  end
 
-    case Cycles.complete_drill(assigns[:drill]) do
+  @impl true
+  def handle_event("save_answer", _, %{assigns: assigns} = socket) do
+    %{drill: drill, moves: moves, duration: duration} = assigns
+    drill = Drills.create_drill(drill, %{answer: moves, duration: duration})
+
+    case Cycles.complete_drill(drill) do
       {:next_drill, drill} ->
-        {:noreply, assign(socket, initial_state(drill))}
+        {:noreply, new_drill(socket, drill)}
 
       _ ->
+        # TODO: show that the round needs to be repeated due to low accuracy
         socket =
           socket
           |> put_flash(:info, "Round completed!")

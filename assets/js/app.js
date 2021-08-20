@@ -49,6 +49,7 @@ const liveViewHooks = {
         if (move === null) {
           return setAction('snapback')
         }
+
         this.pushEvent(event, {
           pgn: this.game.pgn(),
           fen: this.game.fen(),
@@ -65,7 +66,7 @@ const liveViewHooks = {
         document.dispatchEvent(new Event('stop_drill'))
       })
 
-      this.handleEvent('new_game', ({fen}) => {
+      this.handleEvent('new_game', ({ fen }) => {
         this.game = new Chess(fen)
       })
     },

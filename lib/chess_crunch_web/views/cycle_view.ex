@@ -3,12 +3,14 @@ defmodule ChessCrunchWeb.CycleView do
   alias ChessCrunch.Cycles
   alias ChessCrunch.Cycles.Cycle
 
+  defdelegate needs_solutions?(round), to: Cycles
+
   def set_options(sets), do: Enum.map(sets, &[key: &1.name, value: &1.id])
 
   def status(_, %Cycle{completed_on: completed_on}) when completed_on, do: "Completed"
 
   def status(round) do
-    if Cycles.needs_solutions?(round) do
+    if needs_solutions?(round) do
       "Needs Solutions"
     end
   end
