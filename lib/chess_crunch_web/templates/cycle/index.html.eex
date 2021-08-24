@@ -22,20 +22,18 @@
       </ul>
     <% end %>
 
-    <%= if !Enum.empty?(@completed_cycles) && !Enum.empty?(@in_progress_cycles) do %>
-      <hr>
-    <% end %>
-
     <%= if !Enum.empty?(@completed_cycles) do %>
+      <div class="mt-5 mb-1 text-center text-red-400">Completed</div>
+      <hr>
+
       <ul class="m-3 border rounded">
-        <%= for cycle <- @completed_cycles do %>
-          <li class="border-b last:border-b-0 px-3 py-1 bg-<%= card_color(cycle) %>-200">
+        <%= for cycle <- Cycles.order_by_completion(@completed_cycles) do %>
+          <li class="border-b last:border-b-0 px-3 py-1">
             <div>
               <div class="flex justify-between">
                 <strong><%= cycle.name %></strong>
-                <div class="text-red-300"><%= status(Cycles.current_round(cycle.rounds), cycle) %></div>
+                <div class="text-gray-400"><%= DateTime.to_date(cycle.completed_on) %></div>
               </div>
-              <div>Completed: <%= drills_completed(cycle) %></div>
             </div>
           </li>
         <% end %>

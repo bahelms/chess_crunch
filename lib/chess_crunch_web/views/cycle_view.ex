@@ -26,10 +26,4 @@ defmodule ChessCrunchWeb.CycleView do
   def format_time_limit(25), do: "25 secs"
   def format_time_limit(15), do: "15 secs"
   def format_time_limit(10), do: "10 secs"
-
-  def card_color(cycle) do
-    if Cycles.needs_solutions?(cycle) do
-      "red"
-    end
-  end
 end

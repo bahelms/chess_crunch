@@ -6,7 +6,7 @@ defmodule ChessCrunch.Cycles do
   @accuracy_threshold 0.85
 
   import Ecto.Query, warn: false
-  alias ChessCrunch.{Repo, Sets, Drills}
+  alias ChessCrunch.{Repo, Sets}
   alias ChessCrunch.Cycles.{Cycle, Round, Drill}
 
   def list_cycles(user) do
@@ -59,6 +59,10 @@ defmodule ChessCrunch.Cycles do
     |> create_cycle()
   end
 
+  def order_by_completion(cycles) do
+    Enum.sort_by(cycles, & &1.completed_on, {:desc, Date})
+  end
+
   def get_cycle(id), do: Repo.get!(Cycle, id)
 
   def get_round(id), do: Repo.get!(Round, id)
@@ -107,6 +111,7 @@ defmodule ChessCrunch.Cycles do
     end
   end
 
+  # TODO: putting result on drill table will optimize this away
   def accuracy_percent(drills) do
     correct =
       Enum.reduce(drills, 0, fn drill, sum ->
@@ -121,6 +126,11 @@ defmodule ChessCrunch.Cycles do
   end
 
   def next_time_limit(%{time_limit: 360}), do: 180
+  def next_time_limit(%{time_limit: 180}), do: 90
+  def next_time_limit(%{time_limit: 90}), do: 45
+  def next_time_limit(%{time_limit: 45}), do: 25
+  def next_time_limit(%{time_limit: 25}), do: 15
+  def next_time_limit(%{time_limit: 15}), do: 10
   def next_time_limit(%{time_limit: 10}), do: nil
   def next_time_limit(_), do: 0
 
