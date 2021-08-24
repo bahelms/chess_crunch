@@ -15,7 +15,7 @@ defmodule ChessCrunchWeb.EditPositionLive do
        changeset: Sets.change_position(position),
        show_solution: false,
        show_position: false,
-       fen: position.solution_fen || position.fen,
+       solution_fen: position.solution_fen || position.fen,
        solution_color: if(position.solution_fen, do: "blue", else: "red")
      )}
   end
@@ -46,14 +46,31 @@ defmodule ChessCrunchWeb.EditPositionLive do
     pgn = PGN.new(pgn_string)
 
     {:ok, position} =
-      socket.assigns[:position]
+      socket.assigns.position
       |> Sets.update_position(%{solution_moves: pgn.moves, solution_fen: fen})
 
     {:noreply,
      assign(socket,
        position: position,
        changeset: Sets.change_position(position),
-       fen: fen
+       solution_fen: fen
      )}
+  end
+
+  @impl true
+  def handle_event("reset_solution", _, %{assigns: assigns} = socket) do
+    {:ok, position} =
+      Sets.update_position(assigns.position, %{solution_moves: nil, solution_fen: nil})
+
+    socket =
+      socket
+      |> assign(
+        position: position,
+        changeset: Sets.change_position(position),
+        solution_fen: position.fen
+      )
+      |> push_event("new_game", %{fen: position.fen})
+
+    {:noreply, socket}
   end
 end
