@@ -1,8 +1,8 @@
 <li class="border-b-2 last:border-b-0 py-1 px-3">
   <div>
-    <div class="flex justify-between">
+    <%= link to: Routes.cycle_path(@conn, :show, @cycle), class: "flex justify-between" do %>
       <strong><%= @cycle.name %></strong>
-    </div>
+    <% end %>
 
     <div class="flex justify-between items-start">
       <div>

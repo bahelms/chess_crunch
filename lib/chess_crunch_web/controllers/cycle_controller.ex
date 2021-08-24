@@ -1,7 +1,7 @@
 defmodule ChessCrunchWeb.CycleController do
   use ChessCrunchWeb, :controller
 
-  alias ChessCrunch.{Cycles, Sets}
+  alias ChessCrunch.{Cycles, Sets, Repo}
   alias ChessCrunch.Cycles.Cycle
 
   def index(conn, _params) do
@@ -35,7 +35,7 @@ defmodule ChessCrunchWeb.CycleController do
   end
 
   def show(conn, %{"id" => id}) do
-    cycle = Cycles.get_cycle(id)
+    cycle = Cycles.get_cycle(id) |> Cycles.load_rounds()
     render(conn, "show.html", cycle: cycle)
   end
 

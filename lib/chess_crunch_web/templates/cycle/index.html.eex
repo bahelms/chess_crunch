@@ -29,12 +29,10 @@
       <ul class="m-3 border rounded">
         <%= for cycle <- Cycles.order_by_completion(@completed_cycles) do %>
           <li class="border-b last:border-b-0 px-3 py-1">
-            <div>
-              <div class="flex justify-between">
-                <strong><%= cycle.name %></strong>
-                <div class="text-gray-400"><%= DateTime.to_date(cycle.completed_on) %></div>
-              </div>
-            </div>
+            <%= link to: Routes.cycle_path(@conn, :show, cycle), class: "flex justify-between" do %>
+              <strong><%= cycle.name %></strong>
+              <div class="text-gray-400"><%= DateTime.to_date(cycle.completed_on) %></div>
+            <% end %>
           </li>
         <% end %>
       </ul>

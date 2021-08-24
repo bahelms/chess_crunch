@@ -1,3 +1,11 @@
 <div>
-  Hey
+  <ul class="m-3 border rounded">
+    <%= for round <- @cycle.rounds do %>
+      <li class="border-b last:border-b-0 px-3 py-1">
+        <div>
+          <div>Round: <%= round.number %></div>
+        </div>
+      </li>
+    <% end %>
+  </ul>
 </div>
