@@ -16,7 +16,7 @@ config :chess_crunch, ChessCrunch.Repo,
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
 config :chess_crunch, ChessCrunchWeb.Endpoint,
-  http: [port: 4001],
+  http: [port: 4009],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,

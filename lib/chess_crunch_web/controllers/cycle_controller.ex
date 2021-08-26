@@ -1,7 +1,7 @@
 defmodule ChessCrunchWeb.CycleController do
   use ChessCrunchWeb, :controller
 
-  alias ChessCrunch.{Cycles, Sets, Repo}
+  alias ChessCrunch.{Cycles, Sets}
   alias ChessCrunch.Cycles.Cycle
 
   def index(conn, _params) do

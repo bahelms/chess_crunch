@@ -38,6 +38,5 @@ Cycle states:
 TODO:
 * Fail drill when timer hits the round limit.
 * Change Next Drill button text when there is no other drill
-* Cycle show page to see stats and rounds
 * When creating positions, orient board based on To Play
 * Restyle position edit page on mobile
