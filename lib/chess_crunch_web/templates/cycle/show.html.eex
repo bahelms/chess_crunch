@@ -1,11 +1,29 @@
-<div>
+<section>
+  <h1 class="my-3 text-center text-3xl">
+    <%= @cycle.name %>
+  </h1>
+
   <ul class="m-3 border rounded">
     <%= for round <- @cycle.rounds do %>
       <li class="border-b last:border-b-0 px-3 py-1">
-        <div>
-          <div>Round: <%= round.number %></div>
+        <div class="flex flex-col">
+          <div class="flex justify-between">
+            <div><strong>Round:</strong> <%= round.number %></div>
+            <div><%= format_time_limit(round.time_limit) %></div>
+            <div class="text-<%= status_color(round) %>-400"><%= round_status(round) %></div>
+          </div>
+          <div class="text-gray-400 mt-2">
+            <div class="flex justify-between">
+              <span>Completed: <%= drills_completed(round) %></span>
+              <span>Average Duration: <%= average_duration(round.drills) %></span>
+            </div>
+            <div class="flex justify-between">
+              <span>Accuracy: <span class="text-red-400">79%</span></span>
+              <span>Correct: 7 - Incorrect: 3</span>
+            </div>
+          </div>
         </div>
       </li>
     <% end %>
   </ul>
-</div>
+</section>

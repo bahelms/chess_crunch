@@ -33,6 +33,16 @@ defmodule ChessCrunch.Drills do
     end
   end
 
+  @doc "Returns average in whole seconds"
+  def average_duration(drills) do
+    sum =
+      drills
+      |> Enum.map(& &1.duration)
+      |> Enum.sum()
+
+    round(sum / length(drills))
+  end
+
   defp subset(solution, moves) do
     solution_moves = String.split(solution)
     answer_moves = String.split(moves)

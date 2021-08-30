@@ -28,4 +28,18 @@ defmodule ChessCrunch.DrillsTest do
       assert {:full_match, ^move} = Drills.evaluate_moves("1. e4 d4 2. g8 b1", move)
     end
   end
+
+  describe "average_duration/1" do
+    test "finds average of durations for given drills" do
+      drills = [
+        %{duration: 45},
+        %{duration: 5},
+        %{duration: 36},
+        %{duration: 10},
+        %{duration: 97}
+      ]
+
+      assert Drills.average_duration(drills) == 39
+    end
+  end
 end

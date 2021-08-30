@@ -67,7 +67,7 @@ defmodule ChessCrunch.Cycles do
 
   def get_round(id), do: Repo.get!(Round, id)
 
-  def load_rounds(cycle), do: Repo.preload(cycle, :rounds)
+  def load_rounds(cycle), do: Repo.preload(cycle, rounds: [:cycle, :drills])
 
   def complete_round(round) do
     round = Repo.preload(round, drills: :position)
@@ -223,4 +223,7 @@ defmodule ChessCrunch.Cycles do
 
     current_round(cycle.rounds)
   end
+
+  def round_complete?(%{completed_on: nil}), do: false
+  def round_complete?(_), do: true
 end

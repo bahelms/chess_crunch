@@ -12,8 +12,8 @@
       </div>
 
       <div class="mt-3">
-        <%= if needs_solutions?(@round) do %>
-          <div class="text-red-300"><%= status(@round) %></div>
+        <%= if Cycles.needs_solutions?(@round) && Cycles.round_complete?(@round) do %>
+          <div class="text-red-300">Needs Solutions</div>
         <% else %>
           <div>
             <%= link "Start", to: Routes.live_path(@conn, ChessCrunchWeb.CycleLive, @cycle.id), class: "btn-green p-2" %>
