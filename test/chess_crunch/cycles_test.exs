@@ -406,13 +406,13 @@ defmodule ChessCrunch.CyclesTest do
   describe "complete_round/1 when positions don't have solutions" do
     setup [:create_cycle_with_sets]
 
-    test "returns needs_solutions and does not set completed_on", %{round: round} do
+    test "returns needs_solutions and completes round", %{round: round} do
       Repo.update_all(Sets.Position, set: [solution_fen: nil])
       pos = Repo.get_by!(Sets.Position, name: "201")
       Drills.create_drill(%{position_id: pos.id, round_id: round.id})
 
       assert {:needs_solutions, round} = Cycles.complete_round(round)
-      refute round.completed_on
+      assert round.completed_on
     end
   end
 

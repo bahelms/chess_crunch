@@ -70,18 +70,17 @@ defmodule ChessCrunch.Cycles do
   def load_rounds(cycle), do: Repo.preload(cycle, rounds: [:cycle, :drills])
 
   def complete_round(round) do
-    round = Repo.preload(round, drills: :position)
+    {:ok, round} =
+      round
+      |> Repo.preload(drills: :position)
+      |> change_set(%{completed_on: DateTime.utc_now()})
+      |> Repo.update()
 
     case needs_solutions?(round) do
       true ->
         {:needs_solutions, round}
 
       false ->
-        {:ok, round} =
-          round
-          |> change_set(%{completed_on: DateTime.utc_now()})
-          |> Repo.update()
-
         case accuracy_percent(round.drills) do
           percent when percent < @accuracy_threshold ->
             next_round =
