@@ -36,8 +36,8 @@ Cycle states:
     no next round
 
 TODO:
+* Change accuracy color based on threshold
 * Fail drill when timer hits the round limit.
-* Show Needs Solutions once round is complete
 * Change Next Drill button text when there is no other drill
 * When creating positions, orient board based on To Play
 * Restyle position edit page on mobile

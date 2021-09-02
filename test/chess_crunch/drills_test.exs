@@ -83,5 +83,14 @@ defmodule ChessCrunch.DrillsTest do
       assert counts.correct == 4
       assert counts.incorrect == 2
     end
+
+    test "correct is set to zero when all drills are wrong" do
+      counts =
+        [%{answer: "aaa", position: %{solution_moves: "nope"}}]
+        |> Drills.accuracy_counts()
+
+      assert counts.correct == 0
+      assert counts.incorrect == 1
+    end
   end
 end

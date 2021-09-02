@@ -62,11 +62,11 @@ defmodule ChessCrunch.Drills do
 
   # TODO: putting result on drill table may optimize this away
   def accuracy_counts(drills) do
-    Enum.reduce(drills, %{}, fn drill, counts ->
+    Enum.reduce(drills, accuracy_counts([]), fn drill, counts ->
       if drill.answer == drill.position.solution_moves do
-        Map.update(counts, :correct, 1, &(&1 + 1))
+        Map.update!(counts, :correct, &(&1 + 1))
       else
-        Map.update(counts, :incorrect, 1, &(&1 + 1))
+        Map.update!(counts, :incorrect, &(&1 + 1))
       end
     end)
   end

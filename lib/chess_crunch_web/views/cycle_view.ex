@@ -65,7 +65,8 @@ defmodule ChessCrunchWeb.CycleView do
 
   def accuracy_counts(round) do
     if !Cycles.needs_solutions?(round) do
-      "Correct: 7 - Incorrect: 3"
+      counts = Drills.accuracy_counts(round.drills)
+      "Correct: #{counts.correct} - Incorrect: #{counts.incorrect}"
     end
   end
 end
