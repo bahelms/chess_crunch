@@ -18,8 +18,8 @@
               <span>Average Duration: <%= average_duration(round.drills) %></span>
             </div>
             <div class="flex justify-between">
-              <span>Accuracy: <span class="text-red-400">79%</span></span>
-              <span>Correct: 7 - Incorrect: 3</span>
+              <span>Accuracy: <span class="text-red-400"><%= accuracy_percent(round) %></span></span>
+              <span><%= accuracy_counts(round) %></span>
             </div>
           </div>
         </div>

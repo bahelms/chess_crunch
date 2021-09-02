@@ -42,4 +42,46 @@ defmodule ChessCrunch.DrillsTest do
       assert Drills.average_duration(drills) == 39
     end
   end
+
+  describe "accuracy_percent/1" do
+    test "returns 0 when given no drills" do
+      assert Drills.accuracy_percent([]) == 0
+    end
+
+    test "returns percentage of correct drills" do
+      percent =
+        [
+          %{answer: "aaa", position: %{solution_moves: "aaa"}},
+          %{answer: "aab", position: %{solution_moves: "aab"}},
+          %{answer: "aab", position: %{solution_moves: "xaa"}},
+          %{answer: "abb", position: %{solution_moves: "abb"}},
+          %{answer: "bbb", position: %{solution_moves: "bbb"}}
+        ]
+        |> Drills.accuracy_percent()
+
+      assert percent == 80.0
+    end
+  end
+
+  describe "accuracy_counts/1" do
+    test "returns zero counts when given no drills" do
+      assert Drills.accuracy_counts([]) == %{correct: 0, incorrect: 0}
+    end
+
+    test "sums the number of correct and incorrect drills" do
+      counts =
+        [
+          %{answer: "aaa", position: %{solution_moves: "aaa"}},
+          %{answer: "aab", position: %{solution_moves: "aab"}},
+          %{answer: "aab", position: %{solution_moves: "xaa"}},
+          %{answer: "aba", position: %{solution_moves: "xax"}},
+          %{answer: "abb", position: %{solution_moves: "abb"}},
+          %{answer: "bbb", position: %{solution_moves: "bbb"}}
+        ]
+        |> Drills.accuracy_counts()
+
+      assert counts.correct == 4
+      assert counts.incorrect == 2
+    end
+  end
 end

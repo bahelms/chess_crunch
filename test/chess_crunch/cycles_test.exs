@@ -388,6 +388,18 @@ defmodule ChessCrunch.CyclesTest do
     end
   end
 
+  describe "current_round/1 with only one round" do
+    test "returns that round" do
+      round =
+        [
+          %{id: 1, number: 1, completed_on: DateTime.utc_now()}
+        ]
+        |> Cycles.current_round()
+
+      assert round.id == 1
+    end
+  end
+
   describe "complete_round/1" do
     setup [:create_cycle_with_sets, :create_passing_drills]
 

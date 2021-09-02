@@ -15,8 +15,14 @@ defmodule ChessCrunchWeb.CycleView do
 
   def round_status(%{completed_on: nil}), do: "In Progress"
 
-  def round_status(%{completed_on: date}) do
-    "#{date.month}/#{date.day}/#{date.year}"
+  def round_status(%{completed_on: date} = round) do
+    case Cycles.needs_solutions?(round) do
+      true ->
+        "Needs Solutions"
+
+      _ ->
+        "#{date.month}/#{date.day}/#{date.year}"
+    end
   end
 
   def status_color(%{completed_on: nil}), do: "red"
@@ -44,5 +50,22 @@ defmodule ChessCrunchWeb.CycleView do
       |> String.pad_leading(2, "0")
 
     "#{div(seconds, 60)}:#{remaining_seconds}"
+  end
+
+  def accuracy_percent(round) do
+    case Cycles.needs_solutions?(round) do
+      true ->
+        "N/A"
+
+      _ ->
+        percent = round(Drills.accuracy_percent(round.drills))
+        "#{percent}%"
+    end
+  end
+
+  def accuracy_counts(round) do
+    if !Cycles.needs_solutions?(round) do
+      "Correct: 7 - Incorrect: 3"
+    end
   end
 end

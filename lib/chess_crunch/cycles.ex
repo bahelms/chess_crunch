@@ -3,10 +3,10 @@ defmodule ChessCrunch.Cycles do
   The Cycles context.
   """
 
-  @accuracy_threshold 0.85
+  @accuracy_threshold 85.0
 
   import Ecto.Query, warn: false
-  alias ChessCrunch.{Repo, Sets}
+  alias ChessCrunch.{Repo, Sets, Drills}
   alias ChessCrunch.Cycles.{Cycle, Round, Drill}
 
   def list_cycles(user) do
@@ -67,7 +67,7 @@ defmodule ChessCrunch.Cycles do
 
   def get_round(id), do: Repo.get!(Round, id)
 
-  def load_rounds(cycle), do: Repo.preload(cycle, rounds: [:cycle, :drills])
+  def load_rounds(cycle), do: Repo.preload(cycle, rounds: [:cycle, drills: :position])
 
   def complete_round(round) do
     {:ok, round} =
@@ -81,7 +81,7 @@ defmodule ChessCrunch.Cycles do
         {:needs_solutions, round}
 
       false ->
-        case accuracy_percent(round.drills) do
+        case Drills.accuracy_percent(round.drills) do
           percent when percent < @accuracy_threshold ->
             next_round =
               create_round(%{
@@ -110,20 +110,6 @@ defmodule ChessCrunch.Cycles do
             end
         end
     end
-  end
-
-  # TODO: putting result on drill table will optimize this away
-  def accuracy_percent(drills) do
-    correct =
-      Enum.reduce(drills, 0, fn drill, sum ->
-        if drill.answer == drill.position.solution_moves do
-          sum + 1
-        else
-          sum
-        end
-      end)
-
-    correct / length(drills)
   end
 
   def next_time_limit(%{time_limit: 360}), do: 180
@@ -212,6 +198,7 @@ defmodule ChessCrunch.Cycles do
     total_drills(cycle) != total_positions(cycle)
   end
 
+  def current_round([round]), do: round
   def current_round(rounds), do: Enum.find(rounds, &(!&1.completed_on))
 
   def current_round_for_cycle(cycle_id) do
