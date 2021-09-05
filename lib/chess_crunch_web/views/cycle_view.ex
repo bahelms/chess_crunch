@@ -69,4 +69,13 @@ defmodule ChessCrunchWeb.CycleView do
       "Correct: #{counts.correct} - Incorrect: #{counts.incorrect}"
     end
   end
+
+  def accuracy_color(round) do
+    threshold = Cycles.accuracy_threshold()
+
+    case Drills.accuracy_percent(round.drills) do
+      percent when percent < threshold -> "red"
+      _ -> "green"
+    end
+  end
 end

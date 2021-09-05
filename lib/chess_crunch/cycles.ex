@@ -3,11 +3,13 @@ defmodule ChessCrunch.Cycles do
   The Cycles context.
   """
 
-  @accuracy_threshold 85.0
-
   import Ecto.Query, warn: false
   alias ChessCrunch.{Repo, Sets, Drills}
   alias ChessCrunch.Cycles.{Cycle, Round, Drill}
+
+  @accuracy_threshold 85.0
+
+  def accuracy_threshold, do: @accuracy_threshold
 
   def list_cycles(user) do
     Cycle
