@@ -78,4 +78,10 @@ defmodule ChessCrunchWeb.CycleView do
       _ -> "green"
     end
   end
+
+  def iteration_for_round(cycle, round) do
+    cycle.rounds
+    |> Enum.filter(&(&1.number == round.number))
+    |> length()
+  end
 end

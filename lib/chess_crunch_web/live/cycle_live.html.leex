@@ -1,4 +1,4 @@
-<div x-data="drill" class="text-center">
+<div x-data="drill(<%= @time_limit %>)" class="text-center">
   <div class="flex justify-evenly my-4">
     <div><strong>To Play: </strong><%= format_to_play(@drill.position) %></div>
     <div x-text="secondsToTimeFormat(seconds)"></div>

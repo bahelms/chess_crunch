@@ -8,7 +8,10 @@
       <div>
         <div>Completed: <%= drills_completed(@round) %></div>
         <div>Time Limit: <%= format_time_limit(@round.time_limit) %></div>
-        <div>Round: <%= @round.number %></div>
+        <div class="flex items-center">
+          <div>Round: <%= @round.number %></div>
+          <div class="ml-3 text-sm text-gray-500">(iteration: <%= iteration_for_round(@cycle, @round) %>)</div>
+        </div>
       </div>
 
       <div class="mt-3">

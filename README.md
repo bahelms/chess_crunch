@@ -37,8 +37,8 @@ Cycle states:
 
 TODO:
 - MVP:
+  * Change when drill is completed; waiting on button click puts in a bad state when page is refreshed after the drill is done.
   * Set halted cycle into correct state after solutions are provided
-  * Fail drill when timer hits the round limit
 - Nice to have:
   * Change Next Drill button text when there is no other drill
   * When creating positions, orient board based on To Play

@@ -7,11 +7,14 @@ defmodule ChessCrunchWeb.CycleLive do
 
   defp initial_state(drill), do: [drill: drill, fen: drill.position.fen, status: nil]
 
+  defp initial_state(drill, time_limit),
+    do: Keyword.merge(initial_state(drill), time_limit: time_limit)
+
   @impl true
   def mount(%{"id" => cycle_id}, _session, socket) do
-    round_id = Cycles.current_round_for_cycle(cycle_id).id
-    drill = Cycles.next_drill(round_id)
-    {:ok, assign(socket, initial_state(drill))}
+    round = Cycles.current_round_for_cycle(cycle_id)
+    drill = Cycles.next_drill(round.id)
+    {:ok, assign(socket, initial_state(drill, round.time_limit))}
   end
 
   @impl true
@@ -21,8 +24,8 @@ defmodule ChessCrunchWeb.CycleLive do
         %{assigns: %{drill: drill}} = socket
       ) do
     case Drills.evaluate_moves(drill.position.solution_moves, PGN.new(pgn).moves) do
-      {:correct, _moves} ->
-        {:noreply, assign(socket, %{fen: fen})}
+      {:correct, moves} ->
+        {:noreply, assign(socket, %{fen: fen, moves: moves})}
 
       {:full_match, moves} ->
         drill = Drills.create_drill(drill, %{answer: moves, duration: duration})
@@ -74,6 +77,17 @@ defmodule ChessCrunchWeb.CycleLive do
 
         {:noreply, socket}
     end
+  end
+
+  @impl true
+  def handle_event(
+        "timed_out",
+        %{"fen" => fen, "duration" => duration},
+        %{assigns: %{drill: drill}} = socket
+      ) do
+    moves = socket.assigns[:moves]
+    drill = Drills.create_drill(drill, %{answer: moves, duration: duration})
+    {:noreply, assign(socket, %{drill: drill, fen: fen, status: :incorrect})}
   end
 
   defp stop_drill(socket, drill, fen, status) do

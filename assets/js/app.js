@@ -69,6 +69,13 @@ const liveViewHooks = {
       this.handleEvent('new_game', ({ fen }) => {
         this.game = new Chess(fen)
       })
+
+      document.addEventListener('timed_out', () => {
+        this.pushEvent('timed_out', {
+          fen: this.game.fen(),
+          duration: this.el.getAttribute('duration'),
+        })
+      })
     },
   },
 }
@@ -112,13 +119,23 @@ const zeroPad = (val) => {
 window.objToFen = objToFen
 
 document.addEventListener('alpine:init', () => {
-  Alpine.data('drill', () => ({
+  Alpine.data('drill', (timeLimit) => ({
+    timeLimit,
     seconds: 0,
     timer: null,
     draggablePieces: true,
 
     init() {
-      this.timer = setInterval(() => this.seconds++, 1000)
+      this.timer = setInterval(() => {
+        if (this.seconds >= this.timeLimit) {
+          clearInterval(this.timer)
+          this.draggablePieces = false
+          document.dispatchEvent(new Event('timed_out'))
+          return
+        }
+        this.seconds++
+      }, 1000)
+
       document.addEventListener('stop_drill', () => {
         clearInterval(this.timer)
         this.draggablePieces = false
@@ -127,7 +144,15 @@ document.addEventListener('alpine:init', () => {
 
     reset() {
       this.seconds = 0
-      this.timer = setInterval(() => this.seconds++, 1000)
+      this.timer = setInterval(() => {
+        if (this.seconds >= this.timeLimit) {
+          clearInterval(this.timer)
+          this.draggablePieces = false
+          document.dispatchEvent(new Event('timed_out'))
+          return
+        }
+        this.seconds++
+      }, 1000)
       this.draggablePieces = true
     },
 
