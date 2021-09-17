@@ -138,4 +138,8 @@ defmodule ChessCrunch.Sets do
   def format_to_play(_, caps: false), do: "black"
   def format_to_play(%{to_play: "w"}), do: "White"
   def format_to_play(_), do: "Black"
+
+  def needs_solutions?(%{positions: positions}) do
+    Enum.any?(positions, &is_nil(&1.solution_fen))
+  end
 end

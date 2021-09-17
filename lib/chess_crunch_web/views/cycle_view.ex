@@ -1,6 +1,6 @@
 defmodule ChessCrunchWeb.CycleView do
   use ChessCrunchWeb, :view
-  alias ChessCrunch.{Cycles, Drills}
+  alias ChessCrunch.{Cycles, Drills, Sets}
   alias ChessCrunch.Cycles.Cycle
 
   def set_options(sets), do: Enum.map(sets, &[key: &1.name, value: &1.id])
@@ -83,5 +83,13 @@ defmodule ChessCrunchWeb.CycleView do
     cycle.rounds
     |> Enum.filter(&(&1.number == round.number))
     |> length()
+  end
+
+  def set_color(set) do
+    if Sets.needs_solutions?(set) do
+      "red"
+    else
+      "black"
+    end
   end
 end

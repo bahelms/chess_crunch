@@ -35,7 +35,7 @@ defmodule ChessCrunchWeb.CycleController do
   end
 
   def show(conn, %{"id" => id}) do
-    cycle = Cycles.get_cycle(id) |> Cycles.load_rounds()
+    cycle = Cycles.get_cycle(id) |> Cycles.load_rounds() |> Cycles.load_sets()
     render(conn, "show.html", cycle: cycle)
   end
 

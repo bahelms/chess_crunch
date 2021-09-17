@@ -3,6 +3,20 @@
     <%= @cycle.name %>
   </h1>
 
+  <div x-data="{ showSets: false }" class="flex flex-col items-center">
+    <button @click="showSets = true" x-show="!showSets" type="button" class="btn p-1 bg-blue-200">
+      Sets Used
+    </button>
+
+    <ul x-show="showSets" class="border rounded px-2 text-center">
+      <%= for set <- @cycle.sets do %>
+        <li class="text-<%= set_color(set) %>-500">
+          <%= link set.name, to: Routes.set_path(@conn, :show, set) %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+
   <ul class="m-3 border rounded">
     <%= for round <- @cycle.rounds do %>
       <li class="border-b last:border-b-0 px-3 py-1">
