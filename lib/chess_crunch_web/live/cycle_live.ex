@@ -28,22 +28,21 @@ defmodule ChessCrunchWeb.CycleLive do
         {:noreply, assign(socket, %{fen: fen, moves: moves})}
 
       {:full_match, moves} ->
-        drill = Drills.create_drill(drill, %{answer: moves, duration: duration})
+        drill = Drills.persist_drill(drill, %{answer: moves, duration: duration})
+        Cycles.complete_drill(drill)
         {:noreply, stop_drill(socket, drill, fen, :completed)}
 
       {:incorrect, moves} ->
-        drill = Drills.create_drill(drill, %{answer: moves, duration: duration})
+        drill = Drills.persist_drill(drill, %{answer: moves, duration: duration})
+        Cycles.complete_drill(drill)
         {:noreply, stop_drill(socket, drill, fen, :incorrect)}
     end
   end
 
   @impl true
   def handle_event("next_drill", _, %{assigns: assigns} = socket) do
-    case Cycles.complete_drill(assigns[:drill]) do
-      {:next_drill, drill} ->
-        {:noreply, new_drill(socket, drill)}
-
-      _ ->
+    case Cycles.next_drill(assigns[:drill].round_id) do
+      nil ->
         # TODO: show that the round needs to be repeated due to low accuracy
         socket =
           socket
@@ -51,6 +50,9 @@ defmodule ChessCrunchWeb.CycleLive do
           |> redirect(to: Routes.cycle_path(socket, :index))
 
         {:noreply, socket}
+
+      drill ->
+        {:noreply, new_drill(socket, drill)}
     end
   end
 
@@ -62,14 +64,13 @@ defmodule ChessCrunchWeb.CycleLive do
   @impl true
   def handle_event("save_answer", _, %{assigns: assigns} = socket) do
     %{drill: drill, moves: moves, duration: duration} = assigns
-    drill = Drills.create_drill(drill, %{answer: moves, duration: duration})
+    drill = Drills.persist_drill(drill, %{answer: moves, duration: duration})
 
     case Cycles.complete_drill(drill) do
       {:next_drill, drill} ->
         {:noreply, new_drill(socket, drill)}
 
       _ ->
-        # TODO: show that the round needs to be repeated due to low accuracy
         socket =
           socket
           |> put_flash(:info, "Round completed!")
@@ -86,7 +87,7 @@ defmodule ChessCrunchWeb.CycleLive do
         %{assigns: %{drill: drill}} = socket
       ) do
     moves = socket.assigns[:moves]
-    drill = Drills.create_drill(drill, %{answer: moves, duration: duration})
+    drill = Drills.persist_drill(drill, %{answer: moves, duration: duration})
     {:noreply, assign(socket, %{drill: drill, fen: fen, status: :incorrect})}
   end
 

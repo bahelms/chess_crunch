@@ -6,13 +6,13 @@ defmodule ChessCrunch.Drills do
   alias ChessCrunch.Cycles.Drill
   alias ChessCrunch.Repo
 
-  def create_drill(attrs) do
+  def persist_drill(attrs) do
     %Drill{}
     |> Drill.changeset(attrs)
     |> Repo.insert!()
   end
 
-  def create_drill(%Drill{} = drill, changes) do
+  def persist_drill(%Drill{} = drill, changes) do
     drill
     |> Drill.changeset(changes)
     |> Repo.insert!()

@@ -97,11 +97,11 @@ defmodule ChessCrunch.CyclesTest do
     pos3 = Repo.get_by!(Sets.Position, name: "102")
     pos4 = Repo.get_by!(Sets.Position, name: "200")
     pos5 = Repo.get_by!(Sets.Position, name: "201")
-    Drills.create_drill(%{round_id: round.id, position_id: pos1.id, answer: pos1.solution_moves})
-    Drills.create_drill(%{round_id: round.id, position_id: pos2.id, answer: pos1.solution_moves})
-    Drills.create_drill(%{round_id: round.id, position_id: pos3.id, answer: pos1.solution_moves})
-    Drills.create_drill(%{round_id: round.id, position_id: pos4.id, answer: pos1.solution_moves})
-    Drills.create_drill(%{round_id: round.id, position_id: pos5.id, answer: pos1.solution_moves})
+    Drills.persist_drill(%{round_id: round.id, position_id: pos1.id, answer: pos1.solution_moves})
+    Drills.persist_drill(%{round_id: round.id, position_id: pos2.id, answer: pos1.solution_moves})
+    Drills.persist_drill(%{round_id: round.id, position_id: pos3.id, answer: pos1.solution_moves})
+    Drills.persist_drill(%{round_id: round.id, position_id: pos4.id, answer: pos1.solution_moves})
+    Drills.persist_drill(%{round_id: round.id, position_id: pos5.id, answer: pos1.solution_moves})
     context
   end
 
@@ -141,9 +141,9 @@ defmodule ChessCrunch.CyclesTest do
       {:ok, cycle} = Cycles.create_cycle(attrs)
       [round | _] = Repo.preload(cycle, :rounds).rounds
 
-      Drills.create_drill(%{position_id: pos1.id, round_id: round.id})
-      Drills.create_drill(%{position_id: pos1.id, round_id: round.id})
-      Drills.create_drill(%{position_id: pos1.id, round_id: round.id})
+      Drills.persist_drill(%{position_id: pos1.id, round_id: round.id})
+      Drills.persist_drill(%{position_id: pos1.id, round_id: round.id})
+      Drills.persist_drill(%{position_id: pos1.id, round_id: round.id})
 
       assert Cycles.total_drills(round) == 3
     end
@@ -163,7 +163,7 @@ defmodule ChessCrunch.CyclesTest do
 
     test "returns the first ordered position that doesn't have a drill", %{round: round} do
       pos1 = Repo.get_by!(Sets.Position, name: "100")
-      Drills.create_drill(%{round_id: round.id, position_id: pos1.id})
+      Drills.persist_drill(%{round_id: round.id, position_id: pos1.id})
 
       position = Cycles.next_position(round.id)
       assert position.name == "101"
@@ -175,7 +175,7 @@ defmodule ChessCrunch.CyclesTest do
 
     test "returns the first ordered position that doesn't have a drill", %{round: round} do
       pos3 = Repo.get_by!(Sets.Position, name: "102")
-      Drills.create_drill(%{round_id: round.id, position_id: pos3.id})
+      Drills.persist_drill(%{round_id: round.id, position_id: pos3.id})
 
       position = Cycles.next_position(round.id)
       assert position.name == "100"
@@ -188,8 +188,8 @@ defmodule ChessCrunch.CyclesTest do
     test "returns the first ordered position that doesn't have a drill", %{round: round} do
       pos1 = Repo.get_by!(Sets.Position, name: "100")
       pos2 = Repo.get_by!(Sets.Position, name: "101")
-      Drills.create_drill(%{round_id: round.id, position_id: pos1.id})
-      Drills.create_drill(%{round_id: round.id, position_id: pos2.id})
+      Drills.persist_drill(%{round_id: round.id, position_id: pos1.id})
+      Drills.persist_drill(%{round_id: round.id, position_id: pos2.id})
 
       position = Cycles.next_position(round.id)
       assert position.name == "102"
@@ -218,9 +218,9 @@ defmodule ChessCrunch.CyclesTest do
       pos2 = Repo.get_by!(Sets.Position, name: "101")
       pos3 = Repo.get_by!(Sets.Position, name: "102")
 
-      Drills.create_drill(%{round_id: round1.id, position_id: pos1.id})
-      Drills.create_drill(%{round_id: round1.id, position_id: pos2.id})
-      Drills.create_drill(%{round_id: round1.id, position_id: pos3.id})
+      Drills.persist_drill(%{round_id: round1.id, position_id: pos1.id})
+      Drills.persist_drill(%{round_id: round1.id, position_id: pos2.id})
+      Drills.persist_drill(%{round_id: round1.id, position_id: pos3.id})
 
       next_pos = Cycles.next_position(round2.id)
       assert next_pos.name == "100"
@@ -232,7 +232,7 @@ defmodule ChessCrunch.CyclesTest do
 
     test "returns a preloaded drill for the next position", %{round: round} do
       pos1 = Repo.get_by!(Sets.Position, name: "100")
-      Drills.create_drill(%{round_id: round.id, position_id: pos1.id})
+      Drills.persist_drill(%{round_id: round.id, position_id: pos1.id})
 
       drill = Cycles.next_drill(round.id)
       pos2 = Repo.get_by!(Sets.Position, name: "101")
@@ -256,11 +256,11 @@ defmodule ChessCrunch.CyclesTest do
       pos3 = Repo.get_by!(Sets.Position, name: "102")
       pos4 = Repo.get_by!(Sets.Position, name: "200")
       pos5 = Repo.get_by!(Sets.Position, name: "201")
-      Drills.create_drill(%{round_id: round.id, position_id: pos1.id})
-      Drills.create_drill(%{round_id: round.id, position_id: pos2.id})
-      Drills.create_drill(%{round_id: round.id, position_id: pos3.id})
-      Drills.create_drill(%{round_id: round.id, position_id: pos4.id})
-      Drills.create_drill(%{round_id: round.id, position_id: pos5.id})
+      Drills.persist_drill(%{round_id: round.id, position_id: pos1.id})
+      Drills.persist_drill(%{round_id: round.id, position_id: pos2.id})
+      Drills.persist_drill(%{round_id: round.id, position_id: pos3.id})
+      Drills.persist_drill(%{round_id: round.id, position_id: pos4.id})
+      Drills.persist_drill(%{round_id: round.id, position_id: pos5.id})
 
       refute Cycles.next_drill(round.id)
     end
@@ -272,7 +272,7 @@ defmodule ChessCrunch.CyclesTest do
     test "returns the next drill if there is one", %{round: round} do
       drill =
         Cycles.next_drill(round.id)
-        |> Drills.create_drill(%{answer: "garbage", duration: "20"})
+        |> Drills.persist_drill(%{answer: "garbage", duration: "20"})
 
       assert {:next_drill, drill} = Cycles.complete_drill(drill)
       assert Repo.preload(drill, :position).position.name == "101"
@@ -285,7 +285,7 @@ defmodule ChessCrunch.CyclesTest do
     test "completes the round", %{round: round} do
       drill =
         Cycles.next_drill(round.id)
-        |> Drills.create_drill(%{answer: "garbage", duration: "20"})
+        |> Drills.persist_drill(%{answer: "garbage", duration: "20"})
 
       assert {:round_completed, round, _} = Cycles.complete_drill(drill)
       assert round.completed_on
@@ -326,7 +326,7 @@ defmodule ChessCrunch.CyclesTest do
 
     test "preloads rounds, drills, and their positions", %{round: round, user: user} do
       pos = Repo.get_by!(Sets.Position, name: "201")
-      Drills.create_drill(%{round_id: round.id, position_id: pos.id})
+      Drills.persist_drill(%{round_id: round.id, position_id: pos.id})
       %{in_progress: in_progress} = Cycles.list_cycles_grouped_by_status(user)
 
       [round | _] = List.first(in_progress).rounds
@@ -421,7 +421,7 @@ defmodule ChessCrunch.CyclesTest do
     test "returns needs_solutions and completes round", %{round: round} do
       Repo.update_all(Sets.Position, set: [solution_fen: nil])
       pos = Repo.get_by!(Sets.Position, name: "201")
-      Drills.create_drill(%{position_id: pos.id, round_id: round.id})
+      Drills.persist_drill(%{position_id: pos.id, round_id: round.id})
 
       assert {:needs_solutions, round} = Cycles.complete_round(round)
       assert round.completed_on
@@ -433,7 +433,7 @@ defmodule ChessCrunch.CyclesTest do
 
     test "sets the completed_on time", %{round: round} do
       pos = Repo.get_by!(Sets.Position, name: "201")
-      Drills.create_drill(%{position_id: pos.id, round_id: round.id})
+      Drills.persist_drill(%{position_id: pos.id, round_id: round.id})
 
       assert {:round_completed, round, _} = Cycles.complete_round(round)
       assert round.completed_on
@@ -441,7 +441,7 @@ defmodule ChessCrunch.CyclesTest do
 
     test "creates a new record for the same round", %{round: round} do
       pos = Repo.get_by!(Sets.Position, name: "201")
-      Drills.create_drill(%{position_id: pos.id, round_id: round.id})
+      Drills.persist_drill(%{position_id: pos.id, round_id: round.id})
 
       assert {:round_completed, round, next_round} = Cycles.complete_round(round)
       assert next_round.number == 1

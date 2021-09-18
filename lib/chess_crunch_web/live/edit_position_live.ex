@@ -1,6 +1,6 @@
 defmodule ChessCrunchWeb.EditPositionLive do
   use ChessCrunchWeb, :live_view
-  alias ChessCrunch.{PGN, Sets}
+  alias ChessCrunch.{PGN, Sets, Cycles}
 
   defdelegate format_to_play(position, opts), to: Sets
   defdelegate format_to_play(position), to: Sets
@@ -34,7 +34,7 @@ defmodule ChessCrunchWeb.EditPositionLive do
 
   @impl true
   def handle_event("save_position", %{"position" => %{"name" => name}}, socket) do
-    {:ok, position} =
+    position =
       socket.assigns[:position]
       |> Sets.update_position(%{name: name})
 
@@ -45,9 +45,12 @@ defmodule ChessCrunchWeb.EditPositionLive do
   def handle_event("set_solution", %{"pgn" => pgn_string, "fen" => fen}, socket) do
     pgn = PGN.new(pgn_string)
 
-    {:ok, position} =
+    position =
       socket.assigns.position
       |> Sets.update_position(%{solution_moves: pgn.moves, solution_fen: fen})
+      |> Sets.load_parent_cycles()
+
+    Cycles.update_halted_rounds(position.set)
 
     {:noreply,
      assign(socket,
@@ -59,8 +62,7 @@ defmodule ChessCrunchWeb.EditPositionLive do
 
   @impl true
   def handle_event("reset_solution", _, %{assigns: assigns} = socket) do
-    {:ok, position} =
-      Sets.update_position(assigns.position, %{solution_moves: nil, solution_fen: nil})
+    position = Sets.update_position(assigns.position, %{solution_moves: nil, solution_fen: nil})
 
     socket =
       socket

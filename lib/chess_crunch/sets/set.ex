@@ -6,6 +6,7 @@ defmodule ChessCrunch.Sets.Set do
     field :name, :string
 
     has_many :positions, ChessCrunch.Sets.Position
+    many_to_many :cycles, ChessCrunch.Cycles.Cycle, join_through: "cycles_sets"
     belongs_to :user, ChessCrunch.Accounts.User, type: :binary_id
 
     timestamps()

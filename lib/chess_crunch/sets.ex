@@ -131,7 +131,7 @@ defmodule ChessCrunch.Sets do
   def update_position(%Position{} = position, attrs) do
     position
     |> Position.changeset(attrs)
-    |> Repo.update()
+    |> Repo.update!()
   end
 
   def format_to_play(%{to_play: "w"}, caps: false), do: "white"
@@ -139,7 +139,12 @@ defmodule ChessCrunch.Sets do
   def format_to_play(%{to_play: "w"}), do: "White"
   def format_to_play(_), do: "Black"
 
-  def needs_solutions?(%{positions: positions}) do
-    Enum.any?(positions, &is_nil(&1.solution_fen))
+  def needs_solutions?(set) do
+    Repo.preload(set, :positions).positions
+    |> Enum.any?(&is_nil(&1.solution_fen))
+  end
+
+  def load_parent_cycles(position) do
+    Repo.preload(position, set: [cycles: [:rounds, :sets]])
   end
 end

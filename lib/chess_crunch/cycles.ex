@@ -216,4 +216,22 @@ defmodule ChessCrunch.Cycles do
 
   def round_complete?(%{completed_on: nil}), do: false
   def round_complete?(_), do: true
+
+  def update_halted_rounds(set) do
+    if !Sets.needs_solutions?(set) do
+      Enum.each(set.cycles, fn cycle ->
+        if other_sets_need_solutions?(cycle, set.id) do
+          cycle.rounds
+          |> current_round()
+          |> complete_round()
+        end
+      end)
+    end
+  end
+
+  defp other_sets_need_solutions?(cycle, current_set_id) do
+    cycle.sets
+    |> Stream.filter(&(&1.id != current_set_id))
+    |> Enum.all?(&(!Sets.needs_solutions?(&1)))
+  end
 end

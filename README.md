@@ -1,7 +1,6 @@
 # ChessCrunch
 
 To start your Phoenix server:
-
   * Install dependencies with `mix deps.get`
   * Create and migrate your database with `mix ecto.setup`
   * Install Node.js dependencies with `npm install` inside the `assets` directory
@@ -37,9 +36,10 @@ Cycle states:
 
 TODO:
 - MVP:
-  * Change when drill is completed; waiting on button click puts in a bad state when page is refreshed after the drill is done.
   * Set halted cycle into correct state after solutions are provided
 - Nice to have:
+  * Check TODOs
+  * Refactor Cycles.complete_drill to also persist the drill
   * Change Next Drill button text when there is no other drill
   * When creating positions, orient board based on To Play
   * Restyle position edit page on mobile
