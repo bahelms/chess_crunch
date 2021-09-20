@@ -1,5 +1,5 @@
 <%= form_for @changeset, "#", [phx_change: :save_position], fn f -> %>
-  <div class="text-center m-5 flex justify-between">
+  <div class="text-center my-5 mx-4 flex justify-between">
     <label>
       Name: 
       <%= text_input f, :name, "phx-debounce": 500, class: "border rounded ml-2 p-1" %>
@@ -8,7 +8,7 @@
     <%= button "Back to set", 
       to: Routes.set_path(@socket, :show, @position.set_id), 
       method: :get, 
-      class: "btn bg-green-200 py-1" %>
+      class: "btn bg-green-200 py-1 px-2" %>
   </div>
 
   <h2 class="text-center text-2xl mb-3">Set Solution</h2>

@@ -39,7 +39,7 @@ TODO:
   * Set halted cycle into correct state after solutions are provided
 - Nice to have:
   * Check TODOs
+  * Option to change ordering of drills during cycle
   * Refactor Cycles.complete_drill to also persist the drill
   * Change Next Drill button text when there is no other drill
   * When creating positions, orient board based on To Play
-  * Restyle position edit page on mobile
