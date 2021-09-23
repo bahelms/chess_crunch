@@ -5,7 +5,7 @@
 # is restricted to this project.
 
 # General application configuration
-use Mix.Config
+import Config
 
 config :chess_crunch,
   ecto_repos: [ChessCrunch.Repo]
