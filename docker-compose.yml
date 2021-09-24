@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  web:
+    restart: always
+    build: .
+    environment:
+      - HOST=chess-crunch.com
+      - PORT=80
+      - DATABASE_URL=$DATABASE_URL
+      - SECRET_KEY_BASE=$SECRET_KEY_BASE
+      - VIRTUAL_HOST=chess-crunch.com
+      - LETSENCRYPT_HOST=chess-crunch.com

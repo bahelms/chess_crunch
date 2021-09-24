@@ -16,8 +16,8 @@ RUN mix release
 
 FROM bitwalker/alpine-elixir:1.11.4
 
-EXPOSE 5000
-ENV PORT=5000 MIX_ENV=prod
+EXPOSE 80
+ENV PORT=80 MIX_ENV=prod
 WORKDIR /app
 
 COPY --from=builder /app/_build/prod/rel/chess_crunch .
