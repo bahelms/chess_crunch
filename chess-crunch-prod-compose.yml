@@ -9,5 +9,5 @@ services:
       - PORT=80
       - DATABASE_URL=$DATABASE_URL
       - SECRET_KEY_BASE=$SECRET_KEY_BASE
-      - VIRTUAL_HOST=chess-crunch.com
-      - LETSENCRYPT_HOST=chess-crunch.com
+      - VIRTUAL_HOST=www.chess-crunch.com,chess-crunch.com
+      - LETSENCRYPT_HOST=www.chess-crunch.com,chess-crunch.com
