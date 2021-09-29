@@ -57,8 +57,12 @@ defmodule ChessCrunch.Cycles do
 
   def create_cycle(%{"time_limit" => time_limit} = attrs) do
     attrs
-    |> Map.put("rounds", [%{number: 1, time_limit: time_limit}])
+    |> add_initial_round(time_limit)
     |> create_cycle()
+  end
+
+  defp add_initial_round(attrs, time_limit) do
+    Map.put(attrs, "rounds", [%{number: 1, time_limit: time_limit, status: "in_progress"}])
   end
 
   def order_by_completion(cycles) do
@@ -74,45 +78,48 @@ defmodule ChessCrunch.Cycles do
   def load_sets(cycle), do: Repo.preload(cycle, sets: :positions)
 
   def complete_round(round) do
-    {:ok, round} =
-      round
-      |> Repo.preload(drills: :position)
-      |> change_set(%{completed_on: DateTime.utc_now()})
-      |> Repo.update()
+    if needs_solutions?(round) do
+      {:ok, round} =
+        round
+        |> change_set(%{completed_on: DateTime.utc_now(), status: "needs_solutions"})
+        |> Repo.update()
 
-    case needs_solutions?(round) do
-      true ->
-        {:needs_solutions, round}
+      {:needs_solutions, round}
+    else
+      round =
+        round
+        |> change_set(%{completed_on: DateTime.utc_now(), status: "completed"})
+        |> Repo.update!()
+        |> Repo.preload(drills: :position)
 
-      false ->
-        case Drills.accuracy_percent(round.drills) do
-          percent when percent < @accuracy_threshold ->
-            next_round =
-              create_round(%{
-                number: round.number,
-                time_limit: round.time_limit,
-                cycle_id: round.cycle_id
-              })
+      case Drills.accuracy_percent(round.drills) do
+        percent when percent < @accuracy_threshold ->
+          next_round =
+            start_new_round(%{
+              number: round.number,
+              time_limit: round.time_limit,
+              cycle_id: round.cycle_id
+            })
 
-            {:round_completed, round, next_round}
+          {:round_completed, round, next_round}
 
-          _percent ->
-            case next_time_limit(round) do
-              nil ->
-                complete_cycle(round)
-                {:cycle_completed, round}
+        _percent ->
+          case next_time_limit(round) do
+            nil ->
+              complete_cycle(round)
+              {:cycle_completed, round}
 
-              limit ->
-                next_round =
-                  create_round(%{
-                    number: round.number + 1,
-                    time_limit: limit,
-                    cycle_id: round.cycle_id
-                  })
+            limit ->
+              next_round =
+                start_new_round(%{
+                  number: round.number + 1,
+                  time_limit: limit,
+                  cycle_id: round.cycle_id
+                })
 
-                {:round_completed, round, next_round}
-            end
-        end
+              {:round_completed, round, next_round}
+          end
+      end
     end
   end
 
@@ -143,14 +150,14 @@ defmodule ChessCrunch.Cycles do
     |> Enum.reduce(0, &(&2 + length(&1.positions)))
   end
 
-  def create_round(attrs) do
+  def start_new_round(attrs) do
     %Round{}
-    |> Round.changeset(attrs)
+    |> Round.changeset(Map.put(attrs, :status, "in_progress"))
     |> Repo.insert!()
   end
 
-  def total_drills(model) do
-    Repo.preload(model, :drills).drills
+  def total_drills(round) do
+    Repo.preload(round, :drills).drills
     |> length()
   end
 
@@ -194,16 +201,15 @@ defmodule ChessCrunch.Cycles do
     end
   end
 
-  def needs_solutions?(%{drills: drills}) do
+  def needs_solutions?(%{drills: []}), do: false
+
+  def needs_solutions?(round) do
+    drills = Repo.preload(round, drills: :position).drills
     Enum.any?(drills, &is_nil(&1.position.solution_fen))
   end
 
-  def in_progress?(cycle) do
-    total_drills(cycle) != total_positions(cycle)
-  end
-
   def current_round([round]), do: round
-  def current_round(rounds), do: Enum.find(rounds, &(!&1.completed_on))
+  def current_round(rounds), do: Enum.find(rounds, &(&1.status != "completed"))
 
   def current_round_for_cycle(cycle_id) do
     cycle =
@@ -220,7 +226,7 @@ defmodule ChessCrunch.Cycles do
   def update_halted_rounds(set) do
     if !Sets.needs_solutions?(set) do
       Enum.each(set.cycles, fn cycle ->
-        if other_sets_need_solutions?(cycle, set.id) do
+        if !other_sets_need_solutions?(cycle, set.id) do
           cycle.rounds
           |> current_round()
           |> complete_round()
@@ -232,6 +238,6 @@ defmodule ChessCrunch.Cycles do
   defp other_sets_need_solutions?(cycle, current_set_id) do
     cycle.sets
     |> Stream.filter(&(&1.id != current_set_id))
-    |> Enum.all?(&(!Sets.needs_solutions?(&1)))
+    |> Enum.any?(&Sets.needs_solutions?/1)
   end
 end

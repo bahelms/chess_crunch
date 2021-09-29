@@ -80,14 +80,14 @@ defmodule ChessCrunch.CyclesTest do
     %{sets: sets} = create_sets(attrs["user_id"])
     cycle = create_cycle(attrs, Enum.map(sets, & &1.id))
     [round | _] = Repo.preload(cycle, :rounds).rounds
-    Map.merge(context, %{cycle: cycle, round: round, sets: sets})
+    Map.merge(context, %{cycle: cycle, round: Repo.preload(round, :drills), sets: sets})
   end
 
   defp no_more_drills(%{valid_attrs: attrs}) do
     {:ok, set} = Sets.create_set(%{name: "set1", user_id: attrs["user_id"]})
-    Sets.create_position(%{name: "1", to_play: "black", set_id: set.id, solution_fen: "1. xx"})
+    Sets.create_position(%{name: "1", to_play: "black", set_id: set.id, solution_fen: "x"})
     cycle = create_cycle(attrs, [set.id])
-    round = Cycles.create_round(%{cycle_id: cycle.id, number: 1, time_limit: 360})
+    round = Cycles.start_new_round(%{cycle_id: cycle.id, number: 1, time_limit: 360})
     %{round: round}
   end
 
@@ -102,7 +102,14 @@ defmodule ChessCrunch.CyclesTest do
     Drills.persist_drill(%{round_id: round.id, position_id: pos3.id, answer: pos1.solution_moves})
     Drills.persist_drill(%{round_id: round.id, position_id: pos4.id, answer: pos1.solution_moves})
     Drills.persist_drill(%{round_id: round.id, position_id: pos5.id, answer: pos1.solution_moves})
-    context
+    Map.put(context, :round, Repo.reload(round))
+  end
+
+  def positions_without_solutions(%{round: round} = context) do
+    Repo.update_all(Sets.Position, set: [solution_fen: nil])
+    pos = Repo.get_by!(Sets.Position, name: "201")
+    Drills.persist_drill(%{position_id: pos.id, round_id: round.id})
+    Map.put(context, :round, Repo.reload(round))
   end
 
   describe "create_cycle/1" do
@@ -213,7 +220,7 @@ defmodule ChessCrunch.CyclesTest do
       valid_attrs: attrs
     } do
       cycle2 = create_cycle(attrs, Enum.map(sets, & &1.id))
-      round2 = Cycles.create_round(%{cycle_id: cycle2.id, number: 1, time_limit: 360})
+      round2 = Cycles.start_new_round(%{cycle_id: cycle2.id, number: 1, time_limit: 360})
       pos1 = Repo.get_by!(Sets.Position, name: "100")
       pos2 = Repo.get_by!(Sets.Position, name: "101")
       pos3 = Repo.get_by!(Sets.Position, name: "102")
@@ -336,24 +343,28 @@ defmodule ChessCrunch.CyclesTest do
 
   describe "needs_solutions?/1" do
     test "returns true when a position does not have a solution" do
-      assert %{
-               drills: [
-                 %{position: %{solution_fen: "hey"}},
-                 %{position: %{solution_fen: nil}},
-                 %{position: %{solution_fen: "there"}}
-               ]
-             }
-             |> Cycles.needs_solutions?()
+      round = %Cycles.Round{
+        id: 1,
+        drills: [
+          %Cycles.Drill{position_id: 1, position: %Sets.Position{solution_fen: "hey"}},
+          %Cycles.Drill{position_id: 2, position: %Sets.Position{solution_fen: nil}},
+          %Cycles.Drill{position_id: 3, position: %Sets.Position{solution_fen: "there"}}
+        ]
+      }
+
+      assert Cycles.needs_solutions?(round)
     end
 
     test "returns false when all positions have solutions" do
-      refute %{
-               drills: [
-                 %{position: %{solution_fen: "hey"}},
-                 %{position: %{solution_fen: "there"}}
-               ]
-             }
-             |> Cycles.needs_solutions?()
+      round = %Cycles.Round{
+        id: 1,
+        drills: [
+          %Cycles.Drill{position_id: 1, position: %Sets.Position{solution_fen: "hey"}},
+          %Cycles.Drill{position_id: 2, position: %Sets.Position{solution_fen: "there"}}
+        ]
+      }
+
+      refute Cycles.needs_solutions?(round)
     end
 
     test "returns false with no drills" do
@@ -362,13 +373,13 @@ defmodule ChessCrunch.CyclesTest do
   end
 
   describe "current_round/1" do
-    test "returns the latest incomplete round" do
+    test "returns the round without a completed status" do
       round =
         [
-          %{id: 1, number: 1, completed_on: DateTime.utc_now()},
-          %{id: 2, number: 2, completed_on: DateTime.utc_now()},
-          %{id: 3, number: 3, completed_on: DateTime.utc_now()},
-          %{id: 4, number: 3, completed_on: nil}
+          %{id: 1, number: 1, completed_on: DateTime.utc_now(), status: "completed"},
+          %{id: 2, number: 2, completed_on: DateTime.utc_now(), status: "completed"},
+          %{id: 3, number: 3, completed_on: DateTime.utc_now(), status: "completed"},
+          %{id: 4, number: 4, completed_on: DateTime.utc_now(), status: "whatevs"}
         ]
         |> Cycles.current_round()
 
@@ -378,9 +389,9 @@ defmodule ChessCrunch.CyclesTest do
     test "returns nil when all rounds are complete" do
       round =
         [
-          %{id: 1, number: 1, completed_on: DateTime.utc_now()},
-          %{id: 2, number: 2, completed_on: DateTime.utc_now()},
-          %{id: 3, number: 3, completed_on: DateTime.utc_now()}
+          %{id: 1, number: 1, completed_on: DateTime.utc_now(), status: "completed"},
+          %{id: 2, number: 2, completed_on: DateTime.utc_now(), status: "completed"},
+          %{id: 3, number: 3, completed_on: DateTime.utc_now(), status: "completed"}
         ]
         |> Cycles.current_round()
 
@@ -408,6 +419,11 @@ defmodule ChessCrunch.CyclesTest do
       assert round.completed_on
     end
 
+    test "sets the status to complete", %{round: round} do
+      assert {:round_completed, round, _} = Cycles.complete_round(round)
+      assert round.status == "completed"
+    end
+
     test "creates the next round", %{round: round} do
       assert {:round_completed, _, round} = Cycles.complete_round(round)
       assert round.number == 2
@@ -416,27 +432,29 @@ defmodule ChessCrunch.CyclesTest do
   end
 
   describe "complete_round/1 when positions don't have solutions" do
-    setup [:create_cycle_with_sets]
+    setup [:create_cycle_with_sets, :positions_without_solutions]
 
     test "returns needs_solutions and completes round", %{round: round} do
-      Repo.update_all(Sets.Position, set: [solution_fen: nil])
-      pos = Repo.get_by!(Sets.Position, name: "201")
-      Drills.persist_drill(%{position_id: pos.id, round_id: round.id})
-
       assert {:needs_solutions, round} = Cycles.complete_round(round)
       assert round.completed_on
+    end
+
+    test "sets the status to needs_solutions", %{round: round} do
+      assert {:needs_solutions, round} = Cycles.complete_round(round)
+      assert round.status == "needs_solutions"
     end
   end
 
   describe "complete_round/1 when accuracy is < 85%" do
     setup [:create_cycle_with_sets]
 
-    test "sets the completed_on time", %{round: round} do
+    test "completes the round", %{round: round} do
       pos = Repo.get_by!(Sets.Position, name: "201")
       Drills.persist_drill(%{position_id: pos.id, round_id: round.id})
 
       assert {:round_completed, round, _} = Cycles.complete_round(round)
       assert round.completed_on
+      assert round.status == "completed"
     end
 
     test "creates a new record for the same round", %{round: round} do
@@ -457,6 +475,61 @@ defmodule ChessCrunch.CyclesTest do
       round = Map.put(round, :time_limit, 10)
       assert {:cycle_completed, round} = Cycles.complete_round(round)
       assert Cycles.get_cycle(round.cycle_id).completed_on
+    end
+  end
+
+  describe "update_halted_rounds/1" do
+    test "creates the next round", %{user: user, valid_attrs: attrs} do
+      {:ok, set} = Sets.create_set(%{name: "set1", user_id: user.id})
+
+      {:ok, pos1} =
+        Sets.create_position(%{
+          name: "1",
+          to_play: "white",
+          solution_moves: "1. e4",
+          solution_fen: "x",
+          set_id: set.id
+        })
+
+      cycle = create_cycle(attrs, [set.id])
+      [round | _] = Repo.preload(cycle, :rounds).rounds
+      Drills.persist_drill(%{round_id: round.id, position_id: pos1.id})
+      set = Repo.preload(set, cycles: [:sets, :rounds])
+
+      Cycles.update_halted_rounds(set)
+      assert length(Repo.all(Cycles.Round)) == 2
+    end
+  end
+
+  describe "update_halted_rounds/1 with other sets needing solutions" do
+    test "does not create the next round", %{user: user, valid_attrs: attrs} do
+      {:ok, set1} = Sets.create_set(%{name: "set1", user_id: user.id})
+      {:ok, set2} = Sets.create_set(%{name: "set2", user_id: user.id})
+
+      {:ok, pos1} =
+        Sets.create_position(%{
+          name: "1",
+          to_play: "white",
+          solution_moves: "1. e4",
+          solution_fen: "x",
+          set_id: set1.id
+        })
+
+      {:ok, pos2} =
+        Sets.create_position(%{
+          name: "1",
+          to_play: "white",
+          set_id: set2.id
+        })
+
+      cycle = create_cycle(attrs, [set1.id, set2.id])
+      [round | _] = Repo.preload(cycle, :rounds).rounds
+      Drills.persist_drill(%{round_id: round.id, position_id: pos1.id})
+      Drills.persist_drill(%{round_id: round.id, position_id: pos2.id})
+      set1 = Repo.preload(set1, cycles: [:sets, :rounds])
+
+      Cycles.update_halted_rounds(set1)
+      assert length(Repo.all(Cycles.Round)) == 1
     end
   end
 end
