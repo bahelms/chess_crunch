@@ -35,8 +35,11 @@ Cycle states:
     no next round
 
 TODO:
-- MVP:
-  * Set halted cycle into correct state after solutions are provided
+- Bugs:
+  * More than one "in progress" round was created
+  * The rounds weren't sorted by most recent
+  * "Sets Used" button needs padding
+  * "Back to set" button style on actual phone
 - Nice to have:
   * Check TODOs
   * Option to change ordering of drills during cycle

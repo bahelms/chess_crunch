@@ -73,7 +73,10 @@ defmodule ChessCrunch.Cycles do
 
   def get_round(id), do: Repo.get!(Round, id)
 
-  def load_rounds(cycle), do: Repo.preload(cycle, rounds: [:cycle, drills: :position])
+  def load_rounds(cycle) do
+    query = from r in Round, order_by: [desc: r.inserted_at]
+    Repo.preload(cycle, rounds: {query, [:cycle, drills: :position]})
+  end
 
   def load_sets(cycle), do: Repo.preload(cycle, sets: :positions)
 
