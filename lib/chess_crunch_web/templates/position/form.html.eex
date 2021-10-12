@@ -5,28 +5,29 @@
     </div>
   <% end %>
 
-  <div class="flex flex-col">
-    <label class="text-center mb-5">
-      <strong>Name:</strong>
-      <%= text_input f, :name, class: "border rounded ml-2 p-1" %>
-      <%= error_tag f, :name %>
-    </label>
+  <div x-data="{ fen: $el.fen() }" class="flex flex-col">
+    <div class="flex items-center justify-between">
+      <label class="text-center mb-5">
+        <%= text_input f, :name, placeholder: "Name", class: "border rounded p-1" %>
+        <%= error_tag f, :name %>
+      </label>
 
-    <div class="text-center mb-5">
-      <strong>To Play:</strong>
-      <%= radio_button f, :to_play, :w, id: :white_to_play, class: "ml-2" %>
-      <%= label f, :to_play, "White", for: :white_to_play %>
-      <%= radio_button f, :to_play, :b, id: :black_to_play, class: "ml-2" %>
-      <%= label f, :to_play, "Black", for: :black_to_play %>
+      <div class="text-center mb-5">
+        <div><strong>To Play:</strong></div>
+        <%= radio_button f, :to_play, :w, id: :white_to_play, class: "ml-2" %>
+        <%= label f, :to_play, "White", for: :white_to_play %>
+        <%= radio_button f, :to_play, :b, id: :black_to_play, class: "ml-2" %>
+        <%= label f, :to_play, "Black", for: :black_to_play %>
+      </div>
     </div>
 
-    <chess-board x-data="{ fen: $el.fen() }" @change="fen = objToFen($event.detail.value)" spare-pieces drop-off-board="trash" position="start">
+    <chess-board @change="fen = objToFen($event.detail.value)" spare-pieces drop-off-board="trash">
       <%= hidden_input f, :fen, ":value": "fen" %>
     </chess-board>
 
     <div class="text-center -mt-5 mb-7">
       <%= hidden_input f, :set_id, value: @set_id %>
-      <%= submit "Save", class: "btn bg-blue-400 px-5" %>
+      <%= submit "Save", class: "btn bg-blue-400 px-16" %>
     </div>
   </div>
 <% end %>

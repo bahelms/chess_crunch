@@ -1,4 +1,4 @@
 <div class="mx-4">
-  <h1 class="text-2xl mt-5 mb-7">Create a new position</h1>
+  <h1 class="text-2xl my-5">Create a new position</h1>
   <%= render "form.html", Map.put(assigns, :action, Routes.position_path(@conn, :create)) %>
 </div>
