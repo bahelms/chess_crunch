@@ -33,16 +33,3 @@ Cycle states:
 * round N complete
 * last round complete
     no next round
-
-TODO:
-- Bugs:
-  * More than one "in progress" round was created
-  * The rounds weren't sorted by most recent
-  * "Sets Used" button needs padding
-  * "Back to set" button style on actual phone
-- Nice to have:
-  * Check TODOs
-  * Option to change ordering of drills during cycle
-  * Refactor Cycles.complete_drill to also persist the drill
-  * Change Next Drill button text when there is no other drill
-  * When creating positions, orient board based on To Play
