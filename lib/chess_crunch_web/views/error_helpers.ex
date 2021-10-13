@@ -11,7 +11,7 @@ defmodule ChessCrunchWeb.ErrorHelpers do
   def error_tag(form, field) do
     Enum.map(Keyword.get_values(form.errors, field), fn error ->
       content_tag(:span, translate_error(error),
-        class: "invalid-feedback",
+        class: "block m-0 text-red-700",
         phx_feedback_for: input_name(form, field)
       )
     end)

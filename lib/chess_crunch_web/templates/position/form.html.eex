@@ -5,7 +5,7 @@
     </div>
   <% end %>
 
-  <div x-data="{ fen: $el.fen() }" class="flex flex-col">
+  <div x-data="createPosition" class="flex flex-col">
     <div class="flex items-center justify-between">
       <label class="text-center mb-5">
         <%= text_input f, :name, placeholder: "Name", class: "border rounded p-1" %>
@@ -14,14 +14,14 @@
 
       <div class="text-center mb-5">
         <div><strong>To Play:</strong></div>
-        <%= radio_button f, :to_play, :w, id: :white_to_play, class: "ml-2" %>
+        <%= radio_button f, :to_play, :w, id: :white_to_play, checked: true, class: "ml-2", "@click": "selectToPlay('white')" %>
         <%= label f, :to_play, "White", for: :white_to_play %>
-        <%= radio_button f, :to_play, :b, id: :black_to_play, class: "ml-2" %>
+        <%= radio_button f, :to_play, :b, id: :black_to_play, class: "ml-2", "@click": "selectToPlay('black')" %>
         <%= label f, :to_play, "Black", for: :black_to_play %>
       </div>
     </div>
 
-    <chess-board @change="fen = objToFen($event.detail.value)" spare-pieces drop-off-board="trash">
+    <chess-board x-ref="board" @change="captureFen" spare-pieces drop-off-board="trash">
       <%= hidden_input f, :fen, ":value": "fen" %>
     </chess-board>
 

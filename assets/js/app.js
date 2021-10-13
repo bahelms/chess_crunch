@@ -10,9 +10,10 @@ import 'phoenix_html'
 import { Socket } from 'phoenix'
 import topbar from 'topbar'
 import { LiveSocket } from 'phoenix_live_view'
-import Alpine from 'alpinejs'
-import { objToFen } from 'chessboard-element'
 import Chess from 'chess.js'
+import Alpine from 'alpinejs'
+
+import './alpine_init'
 
 const liveViewHooks = {
   chessboard: {
@@ -107,61 +108,3 @@ liveSocket.connect()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
-
-const zeroPad = (val) => {
-  const valString = val + ''
-  if (valString.length == 2) {
-    return valString
-  }
-  return '0' + valString
-}
-
-window.objToFen = objToFen
-
-document.addEventListener('alpine:init', () => {
-  Alpine.data('drill', (timeLimit) => ({
-    timeLimit,
-    seconds: 0,
-    timer: null,
-    draggablePieces: true,
-
-    init() {
-      this.timer = setInterval(() => {
-        if (this.seconds >= this.timeLimit) {
-          clearInterval(this.timer)
-          this.draggablePieces = false
-          document.dispatchEvent(new Event('timed_out'))
-          return
-        }
-        this.seconds++
-      }, 1000)
-
-      document.addEventListener('stop_drill', () => {
-        clearInterval(this.timer)
-        this.draggablePieces = false
-      })
-    },
-
-    reset() {
-      this.seconds = 0
-      this.timer = setInterval(() => {
-        if (this.seconds >= this.timeLimit) {
-          clearInterval(this.timer)
-          this.draggablePieces = false
-          document.dispatchEvent(new Event('timed_out'))
-          return
-        }
-        this.seconds++
-      }, 1000)
-      this.draggablePieces = true
-    },
-
-    secondsToTimeFormat(secs) {
-      const mins = zeroPad(parseInt(secs / 60))
-      const remainingSecs = zeroPad(secs % 60)
-      return `${mins}:${remainingSecs}`
-    },
-  }))
-})
-
-Alpine.start()
