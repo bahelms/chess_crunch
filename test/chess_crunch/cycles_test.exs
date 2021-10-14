@@ -132,6 +132,21 @@ defmodule ChessCrunch.CyclesTest do
     end
   end
 
+  describe "delete_cycle!/1" do
+    setup [:create_cycle_with_sets, :create_passing_drills]
+
+    test "the cycle is deleted", %{cycle: cycle} do
+      Cycles.delete_cycle!(cycle)
+      refute Repo.get(Cycle, cycle.id)
+    end
+
+    test "rounds and drills are deleted", %{cycle: cycle} do
+      Cycles.delete_cycle!(cycle)
+      assert Repo.all(from r in Cycles.Round, where: r.cycle_id == ^cycle.id) == []
+      assert Repo.all(Cycles.Drill) == []
+    end
+  end
+
   describe "total_positions/1" do
     setup [:create_cycle_with_sets]
 

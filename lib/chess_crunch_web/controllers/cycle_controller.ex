@@ -39,6 +39,15 @@ defmodule ChessCrunchWeb.CycleController do
     render(conn, "show.html", cycle: cycle)
   end
 
+  def delete(conn, %{"id" => id}) do
+    cycle = Cycles.get_cycle(id)
+    Cycles.delete_cycle!(cycle)
+
+    conn
+    |> put_flash(:info, "Cycle deleted successfully.")
+    |> redirect(to: Routes.cycle_path(conn, :index))
+  end
+
   defp parse_set_ids(params) do
     set_ids =
       params

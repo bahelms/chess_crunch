@@ -243,4 +243,6 @@ defmodule ChessCrunch.Cycles do
     |> Stream.filter(&(&1.id != current_set_id))
     |> Enum.any?(&Sets.needs_solutions?/1)
   end
+
+  def delete_cycle!(cycle), do: Repo.delete!(cycle)
 end
