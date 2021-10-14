@@ -28,9 +28,11 @@ defmodule ChessCrunchWeb.CycleView do
   def status_color(%{completed_on: nil}), do: "red"
   def status_color(%{completed_on: _}), do: "black"
 
-  def drills_completed(round) do
+  def drills_completed(%{completed_on: nil} = round) do
     "#{Cycles.total_drills(round)}/#{Cycles.total_positions(round.cycle)}"
   end
+
+  def drills_completed(round), do: Cycles.total_drills(round)
 
   def format_time_limit(360), do: "6 min"
   def format_time_limit(180), do: "3 min"
