@@ -8,7 +8,7 @@
     <%= button "Back to set", 
       to: Routes.set_path(@socket, :show, @position.set_id), 
       method: :get, 
-      class: "btn bg-green-200 py-1 px-2" %>
+      class: "btn bg-green-200 py-1 px-1" %>
   </div>
 
   <h2 class="text-center text-2xl mb-3">Set Solution</h2>
@@ -28,8 +28,16 @@
   <div class="mx-4 -mt-11 text-center">
     <%= @position.solution_moves %>
   </div>
+
   <div class="text-center mt-3">
     <button class="btn bg-red-300 py-1" type="button" phx-click="reset_solution">Reset Solution</button>
+  </div>
+  <div class="text-center mt-3">
+    <%= button "Delete Position",
+      to: Routes.position_path(@socket, :delete, @position),
+      method: :delete,
+      data: [confirm: "Are you sure?"],
+      class: "btn bg-red-300 py-1 px-1" %>
   </div>
 <% end %>
 

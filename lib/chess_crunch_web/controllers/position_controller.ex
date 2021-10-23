@@ -24,25 +24,13 @@ defmodule ChessCrunchWeb.PositionController do
     end
   end
 
-  def edit(conn, %{"id" => id}) do
-    # TODO: this needs to be tied to a user
+  def delete(conn, %{"id" => id}) do
     position = Sets.get_position!(id)
-    changeset = Sets.change_position(position)
-    render(conn, :edit, changeset: changeset, position: position)
-  end
+    Sets.delete_position!(position)
 
-  def update(conn, %{"id" => id, "position" => position_params}) do
-    position = Sets.get_position!(id)
-
-    case Sets.update_position(position, position_params) do
-      {:ok, position} ->
-        conn
-        |> put_flash(:info, "Position updated successfully.")
-        |> redirect(to: Routes.set_path(conn, :show, position.set_id))
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, :edit, changeset: changeset)
-    end
+    conn
+    |> put_flash(:info, "Position deleted successfully.")
+    |> redirect(to: Routes.set_path(conn, :show, position.set_id))
   end
 
   defp add_full_fen(%{"fen" => fen, "to_play" => to_play} = position_params) do

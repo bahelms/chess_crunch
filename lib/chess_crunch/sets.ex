@@ -134,6 +134,8 @@ defmodule ChessCrunch.Sets do
     |> Repo.update!()
   end
 
+  def delete_position!(position), do: Repo.delete!(position)
+
   def format_to_play(%{to_play: "w"}, caps: false), do: "white"
   def format_to_play(_, caps: false), do: "black"
   def format_to_play(%{to_play: "w"}), do: "White"
