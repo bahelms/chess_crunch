@@ -1,0 +1,31 @@
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  build_image:
+    if: github.event.pull_request.merged
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v2
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Build container image
+        run: docker build -t registry.digitalocean.com/chess-crunch/chess-crunch:$(echo $GITHUB_SHA | head -c7) .
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITAL_OCEAN_ACCESS_TOKEN }}
+
+      - name: Log in to DigitalOcean Container Registry with short-lived credentials
+        run: doctl registry login --expiry-seconds 600
+
+      - name: Push image to DigitalOcean Container Registry
+        run: docker push registry.digitalocean.com/chess-crunch/chess-crunch:$(echo $GITHUB_SHA | head -c7)
