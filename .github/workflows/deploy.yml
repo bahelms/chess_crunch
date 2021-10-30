@@ -29,3 +29,21 @@ jobs:
 
       - name: Push image to DigitalOcean Container Registry
         run: docker push registry.digitalocean.com/chess-crunch/chess-crunch:$(echo $GITHUB_SHA | head -c7)
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build_image
+
+    steps:
+      - name: Deploy to Digital Ocean droplet via SSH action
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          HOST: ${{ secrets.CHESS_CRUNCH_HOST }}
+          USERNAME: ${{ secrets.CHESS_CRUNCH_USERNAME }}
+          KEY: ${{ secrets.CHESS_CRUNCH_SSH_KEY }}
+          envs: GITHUB_SHA
+          script: |
+            cd chess_crunch
+            docker-compose -f chess-crunch-prod-compose.yml stop
+            docker-compose -f chess-crunch-prod-compose.yml rm
+            docker-compose -f chess-crunch-prod-compose.yml up -d
