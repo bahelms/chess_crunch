@@ -37,12 +37,12 @@ jobs:
     steps:
       - name: Deploy to Digital Ocean droplet via SSH action
         uses: appleboy/ssh-action@v0.1.4
+        env:
+          GITHUB_SHA: $GITHUB_SHA
         with:
           HOST: ${{ secrets.CHESS_CRUNCH_HOST }}
           USERNAME: ${{ secrets.CHESS_CRUNCH_USERNAME }}
           KEY: ${{ secrets.CHESS_CRUNCH_SSH_KEY }}
-          env:
-            GITHUB_SHA: $GITHUB_SHA
           script: |
             cd chess_crunch
             git pull origin main
