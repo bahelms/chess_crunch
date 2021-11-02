@@ -44,6 +44,7 @@ jobs:
           envs: GITHUB_SHA
           script: |
             cd chess_crunch
+            git pull origin main
             docker-compose -f chess-crunch-prod-compose.yml stop
             docker-compose -f chess-crunch-prod-compose.yml rm
             docker-compose -f chess-crunch-prod-compose.yml up -d
