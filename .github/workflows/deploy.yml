@@ -41,7 +41,8 @@ jobs:
           HOST: ${{ secrets.CHESS_CRUNCH_HOST }}
           USERNAME: ${{ secrets.CHESS_CRUNCH_USERNAME }}
           KEY: ${{ secrets.CHESS_CRUNCH_SSH_KEY }}
-          envs: GITHUB_SHA
+          env:
+            GITHUB_SHA: $GITHUB_SHA
           script: |
             cd chess_crunch
             git pull origin main
