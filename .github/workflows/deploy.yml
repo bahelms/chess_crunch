@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build container image
-        run: docker build -t registry.digitalocean.com/chess-crunch/chess-crunch:$(echo $GITHUB_SHA | head -c7) .
+        run: docker build -t registry.digitalocean.com/chess-crunch/chess-crunch:prod .
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
@@ -28,7 +28,7 @@ jobs:
         run: doctl registry login --expiry-seconds 600
 
       - name: Push image to DigitalOcean Container Registry
-        run: docker push registry.digitalocean.com/chess-crunch/chess-crunch:$(echo $GITHUB_SHA | head -c7)
+        run: docker push registry.digitalocean.com/chess-crunch/chess-crunch:prod
 
   deploy:
     runs-on: ubuntu-latest
@@ -37,8 +37,6 @@ jobs:
     steps:
       - name: Deploy to Digital Ocean droplet via SSH action
         uses: appleboy/ssh-action@v0.1.4
-        env:
-          GITHUB_SHA: $GITHUB_SHA
         with:
           HOST: ${{ secrets.CHESS_CRUNCH_HOST }}
           USERNAME: ${{ secrets.CHESS_CRUNCH_USERNAME }}

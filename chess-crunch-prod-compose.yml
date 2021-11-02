@@ -3,7 +3,7 @@ version: "3.9"
 services:
   web:
     restart: always
-    image: registry.digitalocean.com/chess-crunch/chess-crunch:$GITHUB_SHA
+    image: registry.digitalocean.com/chess-crunch/chess-crunch:prod
     environment:
       - HOST=chess-crunch.com
       - PORT=80
