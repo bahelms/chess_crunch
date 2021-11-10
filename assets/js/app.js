@@ -63,19 +63,8 @@ const liveViewHooks = {
         this.el.setPosition(this.game.fen())
       })
 
-      this.handleEvent('stop_drill', () => {
-        document.dispatchEvent(new Event('stop_drill'))
-      })
-
       this.handleEvent('new_game', ({ fen }) => {
         this.game = new Chess(fen)
-      })
-
-      document.addEventListener('timed_out', () => {
-        this.pushEvent('timed_out', {
-          fen: this.game.fen(),
-          duration: this.el.getAttribute('duration'),
-        })
       })
     },
   },

@@ -1,39 +1,71 @@
 defmodule ChessCrunchWeb.CycleLive do
   use ChessCrunchWeb, :live_view
   alias ChessCrunch.{PGN, Cycles, Drills, Sets}
+  alias ChessCrunchWeb.ChessBoardComponent
 
   defdelegate format_to_play(position, opts), to: Sets
   defdelegate format_to_play(position), to: Sets
 
-  defp initial_state(drill), do: [drill: drill, fen: drill.position.fen, status: nil]
+  defp initial_state(drill),
+    do: [
+      drill: drill,
+      fen: drill.position.fen,
+      status: nil,
+      elapsed_seconds: 0,
+      timer: "00:00",
+      drill_active: true,
+      moves: ""
+    ]
 
   defp initial_state(drill, time_limit),
     do: Keyword.merge(initial_state(drill), time_limit: time_limit)
 
   @impl true
   def mount(%{"id" => cycle_id}, _session, socket) do
+    if connected?(socket) do
+      Process.send_after(self(), :tick, 1000)
+    end
+
     round = Cycles.current_round_for_cycle(cycle_id)
     drill = Cycles.next_drill(round.id)
     {:ok, assign(socket, initial_state(drill, round.time_limit))}
   end
 
   @impl true
+  def handle_info(:tick, %{assigns: %{drill_active: false}} = socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info(:tick, %{assigns: assigns} = socket) do
+    secs = assigns.elapsed_seconds + 1
+
+    if secs < assigns.time_limit do
+      Process.send_after(self(), :tick, 1000)
+      {:noreply, assign(socket, %{elapsed_seconds: secs, timer: secs_to_time(secs)})}
+    else
+      state = time_out_drill(assigns.drill, assigns.moves, secs)
+      {:noreply, assign(socket, state)}
+    end
+  end
+
+  @impl true
   def handle_event(
         "board_update",
-        %{"pgn" => pgn, "fen" => fen, "duration" => duration},
-        %{assigns: %{drill: drill}} = socket
+        %{"pgn" => pgn, "fen" => fen},
+        %{assigns: %{drill: drill, elapsed_seconds: elapsed_seconds}} = socket
       ) do
     case Drills.evaluate_moves(drill.position.solution_moves, PGN.new(pgn).moves) do
       {:correct, moves} ->
         {:noreply, assign(socket, %{fen: fen, moves: moves})}
 
       {:full_match, moves} ->
-        drill = Drills.persist_drill(drill, %{answer: moves, duration: duration})
+        drill = Drills.persist_drill(drill, %{answer: moves, duration: elapsed_seconds})
         Cycles.complete_drill(drill)
         {:noreply, stop_drill(socket, drill, fen, :completed)}
 
       {:incorrect, moves} ->
-        drill = Drills.persist_drill(drill, %{answer: moves, duration: duration})
+        drill = Drills.persist_drill(drill, %{answer: moves, duration: elapsed_seconds})
         Cycles.complete_drill(drill)
         {:noreply, stop_drill(socket, drill, fen, :incorrect)}
     end
@@ -57,14 +89,14 @@ defmodule ChessCrunchWeb.CycleLive do
   end
 
   @impl true
-  def handle_event("store_moves", %{"pgn" => pgn, "duration" => duration}, socket) do
-    {:noreply, assign(socket, %{moves: PGN.new(pgn).moves, duration: duration})}
+  def handle_event("store_moves", %{"pgn" => pgn}, socket) do
+    {:noreply, assign(socket, %{moves: PGN.new(pgn).moves})}
   end
 
   @impl true
   def handle_event("save_answer", _, %{assigns: assigns} = socket) do
-    %{drill: drill, moves: moves, duration: duration} = assigns
-    drill = Drills.persist_drill(drill, %{answer: moves, duration: duration})
+    %{drill: drill, moves: moves, elapsed_seconds: elapsed_seconds} = assigns
+    drill = Drills.persist_drill(drill, %{answer: moves, duration: elapsed_seconds})
 
     case Cycles.complete_drill(drill) do
       {:next_drill, drill} ->
@@ -80,27 +112,46 @@ defmodule ChessCrunchWeb.CycleLive do
     end
   end
 
-  @impl true
-  def handle_event(
-        "timed_out",
-        %{"fen" => fen, "duration" => duration},
-        %{assigns: %{drill: drill}} = socket
-      ) do
-    moves = socket.assigns[:moves]
-    drill = Drills.persist_drill(drill, %{answer: moves, duration: duration})
+  defp time_out_drill(drill, moves, duration) do
+    drill =
+      Drills.persist_drill(drill, %{
+        answer: moves,
+        duration: duration
+      })
+
     Cycles.complete_drill(drill)
-    {:noreply, assign(socket, %{drill: drill, fen: fen, status: :incorrect})}
+
+    %{
+      drill: drill,
+      status: :incorrect,
+      drill_active: false,
+      elapsed_seconds: duration,
+      timer: secs_to_time(duration)
+    }
   end
 
   defp stop_drill(socket, drill, fen, status) do
     socket
-    |> assign(%{drill: drill, fen: fen, status: status})
-    |> push_event("stop_drill", %{})
+    |> assign(%{drill: drill, fen: fen, status: status, drill_active: false})
   end
 
   defp new_drill(socket, drill) do
+    Process.send_after(self(), :tick, 1000)
+
     socket
     |> assign(initial_state(drill))
     |> push_event("new_game", %{fen: drill.position.fen})
+  end
+
+  defp secs_to_time(secs) do
+    mins = format_string(div(secs, 60))
+    remaining_secs = format_string(rem(secs, 60))
+    "#{mins}:#{remaining_secs}"
+  end
+
+  defp format_string(integer) do
+    integer
+    |> Integer.to_string()
+    |> String.pad_leading(2, "0")
   end
 end
