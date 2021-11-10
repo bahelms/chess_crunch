@@ -1,36 +1,14 @@
-<div x-data="drill(<%= @time_limit %>)" class="text-center">
+<div class="text-center">
   <div class="flex justify-evenly my-4">
     <div><strong>To Play: </strong><%= format_to_play(@drill.position) %></div>
-    <div x-text="secondsToTimeFormat(seconds)"></div>
+    <div><%= @timer %></div>
   </div>
 
-  <%= if @drill.position.solution_fen do %>
-    <chess-board
-      id="board"
-      phx-hook="chessboard"
-      event="board_update"
-      position="<%= @fen %>"
-      fen="<%= @fen %>"
-      orientation="<%= format_to_play(@drill.position, caps: false) %>"
-      :draggable-pieces="draggablePieces"
-      :duration="seconds">
-    </chess-board>
-  <% else %>
-    <chess-board
-      id="board"
-      phx-hook="chessboard"
-      event="store_moves"
-      position="<%= @fen %>"
-      fen="<%= @fen %>"
-      orientation="<%= format_to_play(@drill.position, caps: false) %>"
-      draggable-pieces
-      :duration="seconds">
-    </chess-board>
-  <% end %>
+  <%= live_component(@socket, ChessBoardComponent, fen: @fen, drill: @drill, drill_active: @drill_active) %>
 
   <%= if !@drill.position.solution_fen do %>
     <p class="-mt-4 mb-2">This position has no solution</p>
-    <button class="btn bg-green-400 px-5 py-2" type="button" phx-click="save_answer" @click="reset()">
+    <button class="btn bg-green-400 px-5 py-2" type="button" phx-click="save_answer">
       Save and Next Drill
     </button>
   <% end %>
@@ -44,7 +22,7 @@
   <% end %>
 
   <%= if @status do %>
-    <button class="btn bg-green-400 px-5 py-2" type="button" phx-click="next_drill" @click="reset()">
+    <button class="btn bg-green-400 px-5 py-2" type="button" phx-click="next_drill">
       Next Drill
     </button>
   <% end %>
