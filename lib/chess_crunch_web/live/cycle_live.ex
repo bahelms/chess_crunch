@@ -22,12 +22,13 @@ defmodule ChessCrunchWeb.CycleLive do
 
   @impl true
   def mount(%{"id" => cycle_id}, _session, socket) do
-    if connected?(socket) do
-      Process.send_after(self(), :tick, 1000)
-    end
-
     round = Cycles.current_round_for_cycle(cycle_id)
     drill = Cycles.next_drill(round.id)
+
+    if connected?(socket) do
+      next_timer_tick()
+    end
+
     {:ok, assign(socket, initial_state(drill, round.time_limit))}
   end
 
@@ -41,7 +42,7 @@ defmodule ChessCrunchWeb.CycleLive do
     secs = assigns.elapsed_seconds + 1
 
     if secs < assigns.time_limit do
-      Process.send_after(self(), :tick, 1000)
+      next_timer_tick()
       {:noreply, assign(socket, %{elapsed_seconds: secs, timer: secs_to_time(secs)})}
     else
       state = time_out_drill(assigns.drill, assigns.moves, secs)
@@ -84,6 +85,7 @@ defmodule ChessCrunchWeb.CycleLive do
         {:noreply, socket}
 
       drill ->
+        next_timer_tick()
         {:noreply, new_drill(socket, drill)}
     end
   end
@@ -136,8 +138,6 @@ defmodule ChessCrunchWeb.CycleLive do
   end
 
   defp new_drill(socket, drill) do
-    Process.send_after(self(), :tick, 1000)
-
     socket
     |> assign(initial_state(drill))
     |> push_event("new_game", %{fen: drill.position.fen})
@@ -154,4 +154,6 @@ defmodule ChessCrunchWeb.CycleLive do
     |> Integer.to_string()
     |> String.pad_leading(2, "0")
   end
+
+  defp next_timer_tick, do: Process.send_after(self(), :tick, 1000)
 end
