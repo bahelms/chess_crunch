@@ -69,7 +69,6 @@ defmodule ChessCrunchWeb.CycleLive do
         {:noreply, socket}
 
       drill ->
-        Timer.start(assigns.timer)
         {:noreply, new_drill(socket, drill)}
     end
   end
@@ -82,7 +81,8 @@ defmodule ChessCrunchWeb.CycleLive do
   @impl true
   def handle_event("save_answer", _, %{assigns: assigns} = socket) do
     %{drill: drill, moves: moves, timer: timer} = assigns
-    drill = Drills.persist_drill(drill, %{answer: moves, duration: Timer.elapsed_seconds(timer)})
+    duration = Timer.stop(timer)
+    drill = Drills.persist_drill(drill, %{answer: moves, duration: duration})
 
     case Cycles.complete_drill(drill) do
       {:next_drill, drill} ->
@@ -103,13 +103,14 @@ defmodule ChessCrunchWeb.CycleLive do
     if seconds < assigns.time_limit do
       {:noreply, assign(socket, %{drill_time: secs_to_time(seconds)})}
     else
-      Timer.stop(assigns.timer)
-      state = time_out_drill(assigns.drill, assigns.moves, seconds)
+      state = time_out_drill(assigns.drill, assigns.moves, seconds, assigns.timer)
       {:noreply, assign(socket, state)}
     end
   end
 
-  defp time_out_drill(drill, moves, duration) do
+  defp time_out_drill(drill, moves, duration, timer) do
+    Timer.stop(timer)
+
     drill =
       Drills.persist_drill(drill, %{
         answer: moves,
@@ -133,6 +134,8 @@ defmodule ChessCrunchWeb.CycleLive do
   end
 
   defp new_drill(socket, drill) do
+    Timer.start(socket.assigns.timer)
+
     socket
     |> assign(initial_state(drill))
     |> push_event("new_game", %{fen: drill.position.fen})
