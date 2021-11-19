@@ -1,7 +1,7 @@
 <div class="text-center">
   <div class="flex justify-evenly my-4">
     <div><strong>To Play: </strong><%= format_to_play(@drill.position) %></div>
-    <div><%= @timer %></div>
+    <div><%= @drill_time %></div>
   </div>
 
   <%= live_component(@socket, ChessBoardComponent, fen: @fen, drill: @drill, drill_active: @drill_active) %>

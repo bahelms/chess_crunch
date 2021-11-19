@@ -1,6 +1,6 @@
 defmodule ChessCrunchWeb.CycleLive do
   use ChessCrunchWeb, :live_view
-  alias ChessCrunch.{PGN, Cycles, Drills, Sets}
+  alias ChessCrunch.{PGN, Cycles, Drills, Sets, Timer}
   alias ChessCrunchWeb.ChessBoardComponent
 
   defdelegate format_to_play(position, opts), to: Sets
@@ -11,62 +11,46 @@ defmodule ChessCrunchWeb.CycleLive do
       drill: drill,
       fen: drill.position.fen,
       status: nil,
-      elapsed_seconds: 0,
-      timer: "00:00",
+      drill_time: "00:00",
       drill_active: true,
       moves: ""
     ]
 
-  defp initial_state(drill, time_limit),
-    do: Keyword.merge(initial_state(drill), time_limit: time_limit)
+  defp initial_state(drill, time_limit, timer),
+    do: Keyword.merge(initial_state(drill), time_limit: time_limit, timer: timer)
 
   @impl true
   def mount(%{"id" => cycle_id}, _session, socket) do
     round = Cycles.current_round_for_cycle(cycle_id)
     drill = Cycles.next_drill(round.id)
+    {:ok, timer} = Timer.start_link(self())
 
     if connected?(socket) do
-      next_timer_tick()
+      Timer.start(timer)
     end
 
-    {:ok, assign(socket, initial_state(drill, round.time_limit))}
-  end
-
-  @impl true
-  def handle_info(:tick, %{assigns: %{drill_active: false}} = socket) do
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_info(:tick, %{assigns: assigns} = socket) do
-    secs = assigns.elapsed_seconds + 1
-
-    if secs < assigns.time_limit do
-      next_timer_tick()
-      {:noreply, assign(socket, %{elapsed_seconds: secs, timer: secs_to_time(secs)})}
-    else
-      state = time_out_drill(assigns.drill, assigns.moves, secs)
-      {:noreply, assign(socket, state)}
-    end
+    {:ok, assign(socket, initial_state(drill, round.time_limit, timer))}
   end
 
   @impl true
   def handle_event(
         "board_update",
         %{"pgn" => pgn, "fen" => fen},
-        %{assigns: %{drill: drill, elapsed_seconds: elapsed_seconds}} = socket
+        %{assigns: %{drill: drill, timer: timer}} = socket
       ) do
     case Drills.evaluate_moves(drill.position.solution_moves, PGN.new(pgn).moves) do
       {:correct, moves} ->
         {:noreply, assign(socket, %{fen: fen, moves: moves})}
 
       {:full_match, moves} ->
-        drill = Drills.persist_drill(drill, %{answer: moves, duration: elapsed_seconds})
+        duration = Timer.stop(timer)
+        drill = Drills.persist_drill(drill, %{answer: moves, duration: duration})
         Cycles.complete_drill(drill)
         {:noreply, stop_drill(socket, drill, fen, :completed)}
 
       {:incorrect, moves} ->
-        drill = Drills.persist_drill(drill, %{answer: moves, duration: elapsed_seconds})
+        duration = Timer.stop(timer)
+        drill = Drills.persist_drill(drill, %{answer: moves, duration: duration})
         Cycles.complete_drill(drill)
         {:noreply, stop_drill(socket, drill, fen, :incorrect)}
     end
@@ -74,7 +58,7 @@ defmodule ChessCrunchWeb.CycleLive do
 
   @impl true
   def handle_event("next_drill", _, %{assigns: assigns} = socket) do
-    case Cycles.next_drill(assigns[:drill].round_id) do
+    case Cycles.next_drill(assigns.drill.round_id) do
       nil ->
         # TODO: show that the round needs to be repeated due to low accuracy
         socket =
@@ -85,7 +69,7 @@ defmodule ChessCrunchWeb.CycleLive do
         {:noreply, socket}
 
       drill ->
-        next_timer_tick()
+        Timer.start(assigns.timer)
         {:noreply, new_drill(socket, drill)}
     end
   end
@@ -97,8 +81,8 @@ defmodule ChessCrunchWeb.CycleLive do
 
   @impl true
   def handle_event("save_answer", _, %{assigns: assigns} = socket) do
-    %{drill: drill, moves: moves, elapsed_seconds: elapsed_seconds} = assigns
-    drill = Drills.persist_drill(drill, %{answer: moves, duration: elapsed_seconds})
+    %{drill: drill, moves: moves, timer: timer} = assigns
+    drill = Drills.persist_drill(drill, %{answer: moves, duration: Timer.elapsed_seconds(timer)})
 
     case Cycles.complete_drill(drill) do
       {:next_drill, drill} ->
@@ -111,6 +95,17 @@ defmodule ChessCrunchWeb.CycleLive do
           |> redirect(to: Routes.cycle_path(socket, :index))
 
         {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_info({:elapsed_seconds, seconds}, %{assigns: assigns} = socket) do
+    if seconds < assigns.time_limit do
+      {:noreply, assign(socket, %{drill_time: secs_to_time(seconds)})}
+    else
+      Timer.stop(assigns.timer)
+      state = time_out_drill(assigns.drill, assigns.moves, seconds)
+      {:noreply, assign(socket, state)}
     end
   end
 
@@ -128,7 +123,7 @@ defmodule ChessCrunchWeb.CycleLive do
       status: :incorrect,
       drill_active: false,
       elapsed_seconds: duration,
-      timer: secs_to_time(duration)
+      drill_time: secs_to_time(duration)
     }
   end
 
@@ -154,6 +149,4 @@ defmodule ChessCrunchWeb.CycleLive do
     |> Integer.to_string()
     |> String.pad_leading(2, "0")
   end
-
-  defp next_timer_tick, do: Process.send_after(self(), :tick, 1000)
 end
