@@ -43,20 +43,13 @@ defmodule ChessCrunch.Timer do
   end
 
   @impl true
+  def handle_info(:tick, %{running: false} = state), do: {:noreply, state}
+
+  @impl true
   def handle_info(:tick, %{seconds: seconds, caller: caller} = state) do
     seconds = seconds + 1
     report_seconds(caller, seconds)
-
-    state =
-      Map.update!(state, :timer_ref, fn ref ->
-        if state.running do
-          next_tick()
-        else
-          ref
-        end
-      end)
-
-    {:noreply, Map.put(state, :seconds, seconds)}
+    {:noreply, Map.merge(state, %{seconds: seconds, timer_ref: next_tick()})}
   end
 
   defp next_tick do
